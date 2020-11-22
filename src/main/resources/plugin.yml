@@ -1,0 +1,12 @@
+name: FwAuctionHouse
+version: ${project.version}
+main: me.kaotich00.fwauctionhouse.FwAuctionHouse
+api-version: 1.13
+authors: [Kaotich00]
+description: An Auction House plugin for forgottenworld server
+website: https://forgottenworld.it
+commands:
+  market:
+    description: Main FwAuctionHouse command
+    usage: /<command>
+    aliases: [market, ah]

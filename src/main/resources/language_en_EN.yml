@@ -1,0 +1,11 @@
+strings:
+  fwauctionhouse_prefix: "&8[&7Fw&aMarket&8]"
+  help_message: |+
+    &a&l&m------------------------------------------
+    &7
+    Hi, here you can find the list of all commands available for the plugin:
+    &8 >> &e/market sell <price> &6- Sell the ItemStack in your hand
+    &a
+    &l&m---------------------------------------------
+  sold_item: "&aSuccessfully put up &6{0} &3x{1} &afor sale at &6{2}z &aeach"
+  cannot_sell_air: "&cYou cannot sell air"
