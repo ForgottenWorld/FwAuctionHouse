@@ -39,7 +39,7 @@ public final class FwAuctionHouse extends JavaPlugin {
         sender.sendMessage(ChatColor.GRAY + "   >> " + ChatColor.RESET + " Scheduling tasks...");
         scheduleTasks();
 
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[EasyRanking]" + ChatColor.RESET + " Registering economy...");
+        sender.sendMessage(ChatColor.GRAY + "   >> " + ChatColor.RESET + " Registering economy...");
         if (!setupEconomy()) {
             this.getLogger().severe("This plugin needs Vault and an Economy plugin in order to function!");
             Bukkit.getPluginManager().disablePlugin(this);
