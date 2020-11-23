@@ -7,5 +7,6 @@ strings:
     &8 >> &e/market sell <price> &6- Sell the ItemStack in your hand
     &a
     &l&m---------------------------------------------
-  sold_item: "&aSuccessfully put up &6{0} &3x{1} &afor sale at &6{2}z &aeach"
+  sold_item: "&aSuccessfully put up &6{0} &bx{1} &afor sale at &6{2}z &aeach"
+  bought_item: "&aSuccessfully bought &6{0} &bx{1} &8(&6{2}z &ahave been withdrew from your account.&8)"
   cannot_sell_air: "&cYou cannot sell air"

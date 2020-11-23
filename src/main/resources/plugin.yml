@@ -5,6 +5,8 @@ api-version: 1.13
 authors: [Kaotich00]
 description: An Auction House plugin for forgottenworld server
 website: https://forgottenworld.it
+depend: [Vault]
+loadafter: [Vault]
 commands:
   market:
     description: Main FwAuctionHouse command

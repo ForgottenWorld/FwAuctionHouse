@@ -39,7 +39,9 @@ public class SellCommand extends UserCommand {
             return true;
         }).thenAccept((result) -> {
             player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1,1);
+
             Message.SOLD_ITEM.send(sender, itemToSell.getI18NDisplayName(), itemToSell.getAmount(), unitPrice);
+
             int slot = playerInventory.getHeldItemSlot();
             playerInventory.setItem(slot, new ItemStack(Material.AIR));
         });

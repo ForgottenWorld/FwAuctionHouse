@@ -1,18 +1,26 @@
 package me.kaotich00.fwauctionhouse.storage.sql;
 
 import me.kaotich00.fwauctionhouse.FwAuctionHouse;
+import me.kaotich00.fwauctionhouse.objects.PendingSell;
 import me.kaotich00.fwauctionhouse.storage.StorageMethod;
 import me.kaotich00.fwauctionhouse.utils.SerializationUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SqlStorage implements StorageMethod {
 
     private static final String INSERT_LISTING = "INSERT INTO listing(`seller_uuid`,`seller_nickname`,`amount`,`unit_price`,`status`,`item_stack`,`additional_data`,`minecraft_enum`,`item_name`) VALUES (?,?,?,?,1,?,?,?,?)";
+    private static final String SELECT_PENDING_SELLS = "SELECT * FROM listing WHERE status = 2";
+    private static final String UPDATE_LISTING_STATUS = "UPDATE listing SET status = ? WHERE id = ?";
+    private static final String DELETE_PENDING_SELLS = "DELETE FROM listing WHERE id = ?";
 
     private ConnectionFactory connectionFactory;
     private final FwAuctionHouse plugin;
@@ -58,6 +66,61 @@ public class SqlStorage implements StorageMethod {
             insertListing.setString(7, itemStack.getType().toString());
             insertListing.setString(8, itemStack.getI18NDisplayName());
             insertListing.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<PendingSell> getPendingSells() {
+        List<PendingSell> pendingSellList = new ArrayList<>();
+        try (Connection c = getConnection()) {
+            try (PreparedStatement ps = c.prepareStatement(SELECT_PENDING_SELLS)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int listingId = rs.getInt("id");
+                        String buyerName = rs.getString("buyer_name");
+
+                        int amount = rs.getInt("amount");
+                        Float totalCost = rs.getFloat("unit_price") * amount;
+
+                        String itemType = rs.getString("item_stack");
+
+                        ItemStack itemStack = SerializationUtil.fromBase64(itemType);
+                        if(buyerName != null && itemStack != null) {
+                            PendingSell pendingSell = new PendingSell(listingId, itemStack, buyerName, totalCost);
+                            pendingSellList.add(pendingSell);
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return pendingSellList;
+    }
+
+    @Override
+    public void updateListingStatus(int listingId, int status) {
+        try (Connection c = getConnection()) {
+            PreparedStatement updateListing = c.prepareStatement(UPDATE_LISTING_STATUS);
+            updateListing.setInt(1, status);
+            updateListing.setInt(2, listingId);
+            updateListing.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deletePendingSell(int listingId) {
+        try (Connection c = getConnection()) {
+            PreparedStatement updateListing = c.prepareStatement(DELETE_PENDING_SELLS);
+            updateListing.setInt(1, listingId);
+            updateListing.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }

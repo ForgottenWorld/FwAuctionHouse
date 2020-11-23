@@ -2,17 +2,21 @@ package me.kaotich00.fwauctionhouse;
 
 import me.kaotich00.fwauctionhouse.commands.MarketCommandManager;
 import me.kaotich00.fwauctionhouse.locale.LocalizationManager;
+import me.kaotich00.fwauctionhouse.services.SimpleMarketService;
 import me.kaotich00.fwauctionhouse.storage.Storage;
 import me.kaotich00.fwauctionhouse.storage.StorageFactory;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class FwAuctionHouse extends JavaPlugin {
 
     public static FileConfiguration defaultConfig;
+    public static Economy economyService;
 
     @Override
     public void onEnable() {
@@ -31,6 +35,15 @@ public final class FwAuctionHouse extends JavaPlugin {
 
         sender.sendMessage(ChatColor.GRAY + "   >> " + ChatColor.RESET + " Registering commands...");
         registerCommands();
+
+        sender.sendMessage(ChatColor.GRAY + "   >> " + ChatColor.RESET + " Scheduling tasks...");
+        scheduleTasks();
+
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[EasyRanking]" + ChatColor.RESET + " Registering economy...");
+        if (!setupEconomy()) {
+            this.getLogger().severe("This plugin needs Vault and an Economy plugin in order to function!");
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
 
         sender.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH +  "====================================================");
     }
@@ -65,8 +78,29 @@ public final class FwAuctionHouse extends JavaPlugin {
         storage.shutdown();
     }
 
+    public void scheduleTasks() {
+        SimpleMarketService.getInstance().scheduleSellingTask();
+    }
+
     public void registerCommands() {
         getCommand("market").setExecutor(new MarketCommandManager(this));
+    }
+
+    public boolean setupEconomy() {
+        if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        economyService = rsp.getProvider();
+        return economyService != null;
+    }
+
+    public static Economy getEconomy() {
+        return economyService;
     }
 
     public static LocalizationManager getLocalizationManager() {

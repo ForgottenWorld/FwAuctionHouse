@@ -13,6 +13,7 @@ public enum Message {
 
     HELP_MESSAGE("help_message", false),
     SOLD_ITEM("sold_item", true),
+    BOUGHT_ITEM("bought_item", true),
     CANNOT_SELL_AIR("cannot_sell_air", true);
 
     private final String message;
