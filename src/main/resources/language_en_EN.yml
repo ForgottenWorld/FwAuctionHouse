@@ -10,3 +10,11 @@ strings:
   sold_item: "&aSuccessfully put up &6{0} &bx{1} &afor sale at &6{2}z &aeach"
   bought_item: "&aSuccessfully bought &6{0} &bx{1} &8(&6{2}z &ahave been withdrew from your account.&8)"
   cannot_sell_air: "&cYou cannot sell air"
+  not_enough_money: "&cYou don't have enough money to buy that item"
+  inventory_full: "&cCannot collect items, your inventory is full! Please make some space"
+  declined: "&cYou just &6declined &cthe purchase. &7Setting the items on sell again."
+  purchase_message: |+
+    &a&l&m------------------------------------------
+    &7
+    Hi, you purchased &a{0} &6x{1} &7from the web store.
+    &5Please click on confirm to accept the purchase, decline otherwise

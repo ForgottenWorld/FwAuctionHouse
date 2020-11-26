@@ -14,7 +14,11 @@ public enum Message {
     HELP_MESSAGE("help_message", false),
     SOLD_ITEM("sold_item", true),
     BOUGHT_ITEM("bought_item", true),
-    CANNOT_SELL_AIR("cannot_sell_air", true);
+    INVENTORY_FULL("inventory_full", true),
+    NOT_ENOUGH_MONEY("not_enough_money", true),
+    CANNOT_SELL_AIR("cannot_sell_air", true),
+    PURCHASE_MESSAGE("purchase_message", false),
+    DECLINED("declined", true);
 
     private final String message;
     private final boolean showPrefix;

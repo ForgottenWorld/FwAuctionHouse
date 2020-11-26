@@ -1,6 +1,5 @@
 package me.kaotich00.fwauctionhouse.commands.user;
 
-import me.kaotich00.fwauctionhouse.FwAuctionHouse;
 import me.kaotich00.fwauctionhouse.commands.api.UserCommand;
 import me.kaotich00.fwauctionhouse.message.Message;
 import me.kaotich00.fwauctionhouse.storage.Storage;
