@@ -2,6 +2,7 @@ package me.kaotich00.fwauctionhouse.storage.sql;
 
 import me.kaotich00.fwauctionhouse.FwAuctionHouse;
 import me.kaotich00.fwauctionhouse.objects.PendingSell;
+import me.kaotich00.fwauctionhouse.objects.PendingToken;
 import me.kaotich00.fwauctionhouse.storage.StorageMethod;
 import me.kaotich00.fwauctionhouse.utils.SerializationUtil;
 import org.bukkit.entity.Player;
@@ -21,6 +22,9 @@ public class SqlStorage implements StorageMethod {
     private static final String SELECT_PENDING_SELLS = "SELECT * FROM listing WHERE status = 2";
     private static final String UPDATE_LISTING_STATUS = "UPDATE listing SET status = ? WHERE id = ?";
     private static final String DELETE_PENDING_SELLS = "DELETE FROM listing WHERE id = ?";
+
+    private static final String SELECT_PENDING_TOKENS = "SELECT * FROM player_session WHERE token IS NOT NULL AND (is_validated IS NULL OR is_validated <> 1)";
+    private static final String VALIDATE_TOKEN = "UPDATE player_session SET is_validated = 1 WHERE id = ?";
 
     private ConnectionFactory connectionFactory;
     private final FwAuctionHouse plugin;
@@ -120,6 +124,40 @@ public class SqlStorage implements StorageMethod {
         try (Connection c = getConnection()) {
             PreparedStatement updateListing = c.prepareStatement(DELETE_PENDING_SELLS);
             updateListing.setInt(1, listingId);
+            updateListing.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<PendingToken> getPendingTokens() {
+        List<PendingToken> pendingTokens = new ArrayList<>();
+        try (Connection c = getConnection()) {
+            try (PreparedStatement ps = c.prepareStatement(SELECT_PENDING_TOKENS)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int sessionId = rs.getInt("id");
+                        String username = rs.getString("username");
+                        String token = rs.getString("token");
+
+                        PendingToken pendingToken = new PendingToken(sessionId, username, token);
+                        pendingTokens.add(pendingToken);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return pendingTokens;
+    }
+
+    @Override
+    public void validateToken(int sessionId) {
+        try (Connection c = getConnection()) {
+            PreparedStatement updateListing = c.prepareStatement(VALIDATE_TOKEN);
+            updateListing.setInt(1, sessionId);
             updateListing.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

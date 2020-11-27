@@ -5,6 +5,7 @@ import me.kaotich00.fwauctionhouse.commands.api.Command;
 import me.kaotich00.fwauctionhouse.commands.user.ConfirmCommand;
 import me.kaotich00.fwauctionhouse.commands.user.DeclineCommand;
 import me.kaotich00.fwauctionhouse.commands.user.SellCommand;
+import me.kaotich00.fwauctionhouse.commands.user.ValidateTokenCommand;
 import me.kaotich00.fwauctionhouse.message.Message;
 import me.kaotich00.fwauctionhouse.utils.CommandUtils;
 import me.kaotich00.fwauctionhouse.utils.MessageUtils;
@@ -33,6 +34,7 @@ public class MarketCommandManager implements TabExecutor {
         this.commandRegistry.put(CommandUtils.SELL_COMMAND, new SellCommand());
         this.commandRegistry.put(CommandUtils.CONFIRM_COMMAND, new ConfirmCommand());
         this.commandRegistry.put(CommandUtils.DECLINE_COMMAND, new DeclineCommand());
+        this.commandRegistry.put(CommandUtils.VALIDATE_TOKEN_COMMAND, new ValidateTokenCommand());
     }
 
     private Command getCommand(String name) {

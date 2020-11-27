@@ -18,6 +18,8 @@ public enum Message {
     NOT_ENOUGH_MONEY("not_enough_money", true),
     CANNOT_SELL_AIR("cannot_sell_air", true),
     PURCHASE_MESSAGE("purchase_message", false),
+    VALIDATED_TOKEN("validated_token", true),
+    VALIDATED_TOKEN_MESSAGE("validate_token_message", true),
     DECLINED("declined", true);
 
     private final String message;

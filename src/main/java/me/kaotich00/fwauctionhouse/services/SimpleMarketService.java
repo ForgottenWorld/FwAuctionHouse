@@ -3,6 +3,7 @@ package me.kaotich00.fwauctionhouse.services;
 import me.kaotich00.fwauctionhouse.FwAuctionHouse;
 import me.kaotich00.fwauctionhouse.message.Message;
 import me.kaotich00.fwauctionhouse.objects.PendingSell;
+import me.kaotich00.fwauctionhouse.objects.PendingToken;
 import me.kaotich00.fwauctionhouse.storage.StorageFactory;
 import me.kaotich00.fwauctionhouse.utils.ListingStatus;
 import net.md_5.bungee.api.ChatColor;
@@ -21,12 +22,14 @@ public class SimpleMarketService {
 
     private static SimpleMarketService instance;
     private Set<PendingSell> pendingSells;
+    private Set<PendingToken> pendingTokens;
 
     private SimpleMarketService() {
         if (instance != null){
             throw new RuntimeException("Use getInstance() method to get the single instance of this class.");
         }
         this.pendingSells = new HashSet<>();
+        this.pendingTokens = new HashSet<>();
     }
 
     public static SimpleMarketService getInstance() {
@@ -96,6 +99,44 @@ public class SimpleMarketService {
         }, 20, 20);
     }
 
+    public void scheduleConfirmTokenTask() {
+        SimpleMarketService simpleMarketService = SimpleMarketService.getInstance();
+
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(FwAuctionHouse.getPlugin(FwAuctionHouse.class), () -> {
+            CompletableFuture.supplyAsync(() -> {
+                List<PendingToken> pendingTokens = StorageFactory.getInstance().getStorageMethod().getPendingTokens();
+                return pendingTokens;
+            }).thenAccept(pendingTokens -> {
+                for(PendingToken pendingToken: pendingTokens) {
+                    Player player = Bukkit.getPlayer(pendingToken.getUsername());
+
+                    if(player == null) {
+                        continue;
+                    }
+
+                    if(simpleMarketService.getPendingToken(pendingToken.getSessionId()).isPresent()) {
+                        continue;
+                    }
+
+                    simpleMarketService.addToPendingToken(pendingToken);
+
+                    TextComponent confirmPurchase = new TextComponent("[CLICK HERE TO CONFIRM YOUR IDENTITY]\n");
+                    confirmPurchase.setColor(ChatColor.GREEN);
+                    confirmPurchase.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market validateToken " + pendingToken.getSessionId()));
+                    confirmPurchase.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to validate your identity").color(ChatColor.GREEN).italic(true).create()));
+
+                    ComponentBuilder message = new ComponentBuilder();
+                    message
+                            .append(Message.VALIDATED_TOKEN_MESSAGE.asString())
+                            .append(confirmPurchase)
+                            .append(ChatColor.GREEN + "" + ChatColor.STRIKETHROUGH + ChatColor.BOLD + "\n------------------------------------------" );
+
+                    player.spigot().sendMessage(message.create());
+                }
+            });
+        }, 40, 40);
+    }
+
     public void addToPendingSells(PendingSell pendingSell) {
         this.pendingSells.add(pendingSell);
     }
@@ -106,6 +147,18 @@ public class SimpleMarketService {
 
     public Optional<PendingSell> getPendingSell(int id) {
         return this.pendingSells.stream().filter(pendingSell -> pendingSell.getListingId() == id).findFirst();
+    }
+
+    public void addToPendingToken(PendingToken pendingToken) {
+        this.pendingTokens.add(pendingToken);
+    }
+
+    public void removeFromPendingToken(PendingToken pendingToken) {
+        this.pendingTokens.remove(pendingToken);
+    }
+
+    public Optional<PendingToken> getPendingToken(int id) {
+        return this.pendingTokens.stream().filter(pendingSell -> pendingSell.getSessionId() == id).findFirst();
     }
 
 }

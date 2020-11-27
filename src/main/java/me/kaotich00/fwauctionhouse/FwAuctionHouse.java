@@ -80,6 +80,7 @@ public final class FwAuctionHouse extends JavaPlugin {
 
     public void scheduleTasks() {
         SimpleMarketService.getInstance().scheduleSellingTask();
+        SimpleMarketService.getInstance().scheduleConfirmTokenTask();
     }
 
     public void registerCommands() {

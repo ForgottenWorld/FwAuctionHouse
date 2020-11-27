@@ -13,8 +13,14 @@ strings:
   not_enough_money: "&cYou don't have enough money to buy that item"
   inventory_full: "&cCannot collect items, your inventory is full! Please make some space"
   declined: "&cYou just &6declined &cthe purchase. &7Setting the items on sell again."
+  validated_token: "&aSuccessfully confirmed user"
   purchase_message: |+
     &a&l&m------------------------------------------
     &7
     Hi, you purchased &a{0} &6x{1} &7from the web store.
     &5Please click on confirm to accept the purchase, decline otherwise
+  validate_token_message: |+
+    &a&l&m------------------------------------------
+    &7
+    Hi, you need to validate your identity before proceeding on the web store.
+    &5Please click on confirm to validate your identity

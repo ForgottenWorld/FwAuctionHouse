@@ -2,6 +2,7 @@ package me.kaotich00.fwauctionhouse.storage;
 
 import me.kaotich00.fwauctionhouse.FwAuctionHouse;
 import me.kaotich00.fwauctionhouse.objects.PendingSell;
+import me.kaotich00.fwauctionhouse.objects.PendingToken;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,5 +27,9 @@ public interface StorageMethod {
     void updateListingStatus(int listingId, int status);
 
     void deletePendingSell(int listingId);
+
+    List<PendingToken> getPendingTokens();
+
+    void validateToken(int sessionId);
 
 }
