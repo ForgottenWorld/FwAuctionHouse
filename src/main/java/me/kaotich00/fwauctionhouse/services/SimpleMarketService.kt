@@ -1,58 +1,26 @@
 package me.kaotich00.fwauctionhouse.services
 
-import java.util.stream.Collectors
-import kotlin.Throws
-import java.lang.IllegalStateException
-import java.io.ByteArrayOutputStream
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder
-import java.lang.Exception
-import java.io.IOException
-import java.io.ByteArrayInputStream
-import java.lang.ClassNotFoundException
 import me.kaotich00.fwauctionhouse.FwAuctionHouse
-import me.kaotich00.fwauctionhouse.locale.LocalizationManager
-import java.lang.RuntimeException
-import me.kaotich00.fwauctionhouse.storage.util.StorageCredentials
-import me.kaotich00.fwauctionhouse.storage.sql.hikari.HikariConnectionFactory
-import com.zaxxer.hikari.HikariConfig
-import me.kaotich00.fwauctionhouse.storage.sql.ConnectionFactory
-import com.zaxxer.hikari.HikariDataSource
-import java.lang.LinkageError
-import java.sql.SQLException
-import me.kaotich00.fwauctionhouse.storage.StorageMethod
-import java.sql.PreparedStatement
-import me.kaotich00.fwauctionhouse.storage.sql.SqlStorage
-import me.kaotich00.fwauctionhouse.utils.SerializationUtil
+import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.objects.PendingSell
 import me.kaotich00.fwauctionhouse.objects.PendingToken
-import java.sql.DriverManager
 import me.kaotich00.fwauctionhouse.storage.StorageFactory
-import me.kaotich00.fwauctionhouse.storage.sql.hikari.MySQLConnectionFactory
-import me.kaotich00.fwauctionhouse.commands.api.UserCommand
-import java.util.concurrent.CompletableFuture
-import me.kaotich00.fwauctionhouse.services.SimpleMarketService
-import java.lang.Runnable
 import me.kaotich00.fwauctionhouse.utils.ListingStatus
-import me.kaotich00.fwauctionhouse.utils.CommandUtils
-import me.kaotich00.fwauctionhouse.commands.user.SellCommand
-import me.kaotich00.fwauctionhouse.commands.user.ConfirmCommand
-import me.kaotich00.fwauctionhouse.commands.user.DeclineCommand
-import me.kaotich00.fwauctionhouse.commands.user.ValidateTokenCommand
-import net.md_5.bungee.api.chat.ClickEvent
-import net.md_5.bungee.api.chat.HoverEvent
-import net.md_5.bungee.api.chat.ComponentBuilder
-import me.kaotich00.fwauctionhouse.commands.MarketCommandManager
-import me.kaotich00.fwauctionhouse.message.Message
 import net.md_5.bungee.api.ChatColor
+import net.md_5.bungee.api.chat.ClickEvent
+import net.md_5.bungee.api.chat.ComponentBuilder
+import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
-import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 class SimpleMarketService private constructor() {
+
     private val pendingSells: MutableSet<PendingSell>
     private val pendingTokens: MutableSet<PendingToken>
+
     fun scheduleSellingTask() {
         val simpleMarketService = getInstance()
         Bukkit.getScheduler().scheduleSyncRepeatingTask(
@@ -60,7 +28,7 @@ class SimpleMarketService private constructor() {
                 FwAuctionHouse::class.java
             ), {
                 CompletableFuture.supplyAsync {
-                    val pendingSellList = StorageFactory.getInstance().storageMethod.pendingSells
+                    val pendingSellList = StorageFactory.instance?.storageMethod?.pendingSells
                     pendingSellList
                 }.thenAccept { pendingSells: List<PendingSell> ->
                     for (pendingSell in pendingSells) {
@@ -68,7 +36,7 @@ class SimpleMarketService private constructor() {
                         if (player == null) {
                             val offlinePlayer = Bukkit.getOfflinePlayerIfCached(pendingSell.buyerName)
                             if (offlinePlayer == null) {
-                                StorageFactory.getInstance().storageMethod.updateListingStatus(
+                                StorageFactory.instance?.storageMethod?.updateListingStatus(
                                     pendingSell.listingId,
                                     ListingStatus.NO_USER_FOUND
                                 )
@@ -82,9 +50,9 @@ class SimpleMarketService private constructor() {
                             Message.INVENTORY_FULL.send(player)
                             continue
                         }
-                        if (FwAuctionHouse.Companion.getEconomy().getBalance(player) < pendingSell.totalCost) {
+                        if (FwAuctionHouse.economy?.getBalance(player)!! < pendingSell.totalCost) {
                             Message.NOT_ENOUGH_MONEY.send(player)
-                            StorageFactory.getInstance().storageMethod.updateListingStatus(
+                            StorageFactory.instance?.storageMethod?.updateListingStatus(
                                 pendingSell.listingId,
                                 ListingStatus.NOT_ENOUGH_MONEY
                             )
@@ -122,13 +90,13 @@ class SimpleMarketService private constructor() {
                             .append(declinePurchase)
                             .append(
                                 """
-    ${ChatColor.GREEN}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}
-    ------------------------------------------
-    """.trimIndent()
+                                ${ChatColor.GREEN}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}
+                                ------------------------------------------
+                                """.trimIndent()
                             )
                         player.spigot().sendMessage(*message.create())
                     }
-                }
+                } as ((List<PendingSell>?) -> Unit)?
             }, 20, 20
         )
     }
@@ -140,7 +108,7 @@ class SimpleMarketService private constructor() {
                 FwAuctionHouse::class.java
             ), {
                 CompletableFuture.supplyAsync {
-                    val pendingTokens = StorageFactory.getInstance().storageMethod.pendingTokens
+                    val pendingTokens = StorageFactory.instance?.storageMethod?.pendingTokens
                     pendingTokens
                 }.thenAccept { pendingTokens: List<PendingToken> ->
                     for (pendingToken in pendingTokens) {
@@ -164,13 +132,13 @@ class SimpleMarketService private constructor() {
                             .append(confirmPurchase)
                             .append(
                                 """
-    ${ChatColor.GREEN}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}
-    ------------------------------------------
-    """.trimIndent()
+                                            ${ChatColor.GREEN}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}
+                                            ------------------------------------------
+                                            """.trimIndent()
                             )
                         player.spigot().sendMessage(*message.create())
                     }
-                }
+                } as ((List<PendingToken>?) -> Unit)?
             }, 40, 40
         )
     }

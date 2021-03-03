@@ -1,3 +1,3 @@
 package me.kaotich00.fwauctionhouse.objects
 
-class PendingToken(var sessionId: Int, var username: String, var token: String)
+data class PendingToken(var sessionId: Int, var username: String, var token: String)
