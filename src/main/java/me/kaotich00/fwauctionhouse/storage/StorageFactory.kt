@@ -9,18 +9,19 @@ import org.bukkit.plugin.java.JavaPlugin
 
 object StorageFactory {
     var storage: Storage? = null
-    val instance: Storage?
+    val instance: Storage
         get() {
             if (storage != null) {
-                return storage
+                return storage!!
             }
             storage = Storage(
                 JavaPlugin.getPlugin(
                     FwAuctionHouse::class.java
                 ), storageFromConfig
             )
-            return storage
+            return storage!!
         }
+
     private val storageFromConfig: StorageMethod
         private get() {
             val defaultConfig: FileConfiguration? = FwAuctionHouse.defaultConfig

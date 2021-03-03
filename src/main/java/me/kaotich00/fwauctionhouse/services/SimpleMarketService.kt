@@ -30,7 +30,7 @@ class SimpleMarketService private constructor() {
                 CompletableFuture.supplyAsync {
                     val pendingSellList = StorageFactory.instance?.storageMethod?.pendingSells
                     pendingSellList
-                }.thenAccept { pendingSells: List<PendingSell> ->
+                }.thenAccept { pendingSells ->
                     for (pendingSell in pendingSells) {
                         val player = Bukkit.getPlayer(pendingSell.buyerName)
                         if (player == null) {
@@ -96,7 +96,7 @@ class SimpleMarketService private constructor() {
                             )
                         player.spigot().sendMessage(*message.create())
                     }
-                } as ((List<PendingSell>?) -> Unit)?
+                }
             }, 20, 20
         )
     }
@@ -110,7 +110,7 @@ class SimpleMarketService private constructor() {
                 CompletableFuture.supplyAsync {
                     val pendingTokens = StorageFactory.instance?.storageMethod?.pendingTokens
                     pendingTokens
-                }.thenAccept { pendingTokens: List<PendingToken> ->
+                }.thenAccept { pendingTokens ->
                     for (pendingToken in pendingTokens) {
                         val player = Bukkit.getPlayer(pendingToken.username) ?: continue
                         if (simpleMarketService!!.getPendingToken(pendingToken.sessionId).isPresent) {
@@ -138,7 +138,7 @@ class SimpleMarketService private constructor() {
                             )
                         player.spigot().sendMessage(*message.create())
                     }
-                } as ((List<PendingToken>?) -> Unit)?
+                }
             }, 40, 40
         )
     }
