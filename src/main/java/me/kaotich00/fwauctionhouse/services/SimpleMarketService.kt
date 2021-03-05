@@ -16,20 +16,19 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-class SimpleMarketService private constructor() {
+object SimpleMarketService {
 
-    private val pendingSells: MutableSet<PendingSell>
-    private val pendingTokens: MutableSet<PendingToken>
+    private val pendingSells = mutableSetOf<PendingSell>()
+    private val pendingTokens = mutableSetOf<PendingToken>()
 
     fun scheduleSellingTask() {
-        val simpleMarketService = getInstance()
+
         Bukkit.getScheduler().scheduleSyncRepeatingTask(
             JavaPlugin.getPlugin(
                 FwAuctionHouse::class.java
             ), {
                 CompletableFuture.supplyAsync {
-                    val pendingSellList = StorageFactory.instance?.storageMethod?.pendingSells
-                    pendingSellList
+                    StorageFactory.instance?.storageMethod?.pendingSells
                 }.thenAccept { pendingSells ->
                     for (pendingSell in pendingSells) {
                         val player = Bukkit.getPlayer(pendingSell.buyerName)
@@ -43,43 +42,45 @@ class SimpleMarketService private constructor() {
                             }
                             continue
                         }
-                        if (simpleMarketService!!.getPendingSell(pendingSell.listingId).isPresent) {
+                        if (getPendingSell(pendingSell.listingId).isPresent) {
                             continue
                         }
                         if (player.inventory.firstEmpty() == -1) {
                             Message.INVENTORY_FULL.send(player)
                             continue
                         }
-                        if (FwAuctionHouse.economy?.getBalance(player)!! < pendingSell.totalCost) {
+                        if (FwAuctionHouse.economy.getBalance(player) < pendingSell.totalCost) {
                             Message.NOT_ENOUGH_MONEY.send(player)
-                            StorageFactory.instance?.storageMethod?.updateListingStatus(
+                            StorageFactory.instance.storageMethod.updateListingStatus(
                                 pendingSell.listingId,
                                 ListingStatus.NOT_ENOUGH_MONEY
                             )
                             continue
                         }
-                        simpleMarketService.addToPendingSells(pendingSell)
-                        val confirmPurchase = TextComponent("[CLICK HERE TO CONFIRM]")
-                        confirmPurchase.color = ChatColor.GREEN
-                        confirmPurchase.clickEvent =
-                            ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market confirm " + pendingSell.listingId)
-                        confirmPurchase.hoverEvent = HoverEvent(
-                            HoverEvent.Action.SHOW_TEXT, ComponentBuilder("Click to accept the purchase").color(
-                                ChatColor.GREEN
-                            ).italic(true).create()
-                        )
-                        val declinePurchase = TextComponent("[CLICK HERE TO DECLINE]\n")
-                        declinePurchase.color = ChatColor.RED
-                        declinePurchase.clickEvent =
-                            ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market decline " + pendingSell.listingId)
-                        declinePurchase.hoverEvent = HoverEvent(
-                            HoverEvent.Action.SHOW_TEXT, ComponentBuilder("Click to decline the purchase").color(
-                                ChatColor.RED
-                            ).italic(true).create()
-                        )
-                        val message = ComponentBuilder()
-                        message
-                            .append(
+
+                        addToPendingSells(pendingSell)
+
+                        val confirmPurchase = TextComponent("[CLICK HERE TO CONFIRM]").apply {
+                            color = ChatColor.GREEN
+                            clickEvent = ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market confirm " + pendingSell.listingId)
+                            hoverEvent = HoverEvent(
+                                HoverEvent.Action.SHOW_TEXT, ComponentBuilder("Click to accept the purchase").color(
+                                    ChatColor.GREEN
+                                ).italic(true).create()
+                            )
+                        }
+
+                        val declinePurchase = TextComponent("[CLICK HERE TO DECLINE]\n").apply {
+                            color = ChatColor.RED
+                            clickEvent = ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market decline " + pendingSell.listingId)
+                            hoverEvent = HoverEvent(
+                                HoverEvent.Action.SHOW_TEXT, ComponentBuilder("Click to decline the purchase").color(
+                                    ChatColor.RED
+                                ).italic(true).create()
+                            )
+                        }
+
+                        val message = ComponentBuilder().append(
                                 Message.PURCHASE_MESSAGE.asString(
                                     pendingSell.itemStack.i18NDisplayName,
                                     pendingSell.itemStack.amount
@@ -102,7 +103,6 @@ class SimpleMarketService private constructor() {
     }
 
     fun scheduleConfirmTokenTask() {
-        val simpleMarketService = getInstance()
         Bukkit.getScheduler().scheduleSyncRepeatingTask(
             JavaPlugin.getPlugin(
                 FwAuctionHouse::class.java
@@ -113,10 +113,10 @@ class SimpleMarketService private constructor() {
                 }.thenAccept { pendingTokens ->
                     for (pendingToken in pendingTokens) {
                         val player = Bukkit.getPlayer(pendingToken.username) ?: continue
-                        if (simpleMarketService!!.getPendingToken(pendingToken.sessionId).isPresent) {
+                        if (getPendingToken(pendingToken.sessionId).isPresent) {
                             continue
                         }
-                        simpleMarketService.addToPendingToken(pendingToken)
+                        addToPendingToken(pendingToken)
                         val confirmPurchase = TextComponent("[CLICK HERE TO CONFIRM YOUR IDENTITY]\n")
                         confirmPurchase.color = ChatColor.GREEN
                         confirmPurchase.clickEvent =
@@ -165,23 +165,5 @@ class SimpleMarketService private constructor() {
 
     fun getPendingToken(id: Int): Optional<PendingToken> {
         return pendingTokens.stream().filter { pendingSell: PendingToken -> pendingSell.sessionId == id }.findFirst()
-    }
-
-    companion object {
-        private var instance: SimpleMarketService? = null
-        fun getInstance(): SimpleMarketService? {
-            if (instance == null) {
-                instance = SimpleMarketService()
-            }
-            return instance
-        }
-    }
-
-    init {
-        if (instance != null) {
-            throw RuntimeException("Use getInstance() method to get the single instance of this class.")
-        }
-        pendingSells = HashSet()
-        pendingTokens = HashSet()
     }
 }

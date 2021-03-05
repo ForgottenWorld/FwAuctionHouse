@@ -16,8 +16,10 @@ import org.bukkit.command.TabExecutor
 import java.util.*
 
 class MarketCommandManager(plugin: FwAuctionHouse) : TabExecutor {
+
     private val commandRegistry: MutableMap<String?, Command>
     private val plugin: FwAuctionHouse
+
     private fun setup() {
         commandRegistry[CommandUtils.SELL_COMMAND] = SellCommand()
         commandRegistry[CommandUtils.CONFIRM_COMMAND] = ConfirmCommand()

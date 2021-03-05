@@ -27,10 +27,6 @@ class FwAuctionHouse : JavaPlugin() {
         sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Scheduling tasks...")
         scheduleTasks()
         sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Registering economy...")
-        if (!setupEconomy()) {
-            logger.severe("This plugin needs Vault and an Economy plugin in order to function!")
-            Bukkit.getPluginManager().disablePlugin(this)
-        }
         sender.sendMessage(ChatColor.DARK_GRAY.toString() + "" + ChatColor.STRIKETHROUGH + "====================================================")
     }
 
@@ -60,28 +56,23 @@ class FwAuctionHouse : JavaPlugin() {
     }
 
     private fun scheduleTasks() {
-        SimpleMarketService.getInstance()!!.scheduleSellingTask()
-        SimpleMarketService.getInstance()!!.scheduleConfirmTokenTask()
+        SimpleMarketService.scheduleSellingTask()
+        SimpleMarketService.scheduleConfirmTokenTask()
     }
 
     private fun registerCommands() {
         getCommand("market")!!.setExecutor(MarketCommandManager(this))
     }
 
-    private fun setupEconomy(): Boolean {
-        if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
-            return false
-        }
-        val rsp = server.servicesManager.getRegistration(
-            Economy::class.java
-        ) ?: return false
-        economy = rsp.provider
-        return economy != null
-    }
-
     companion object {
         var defaultConfig: FileConfiguration? = null
-        var economy: Economy? = null
+
+        val economy by lazy {
+            Bukkit.getServer().servicesManager.getRegistration(
+                Economy::class.java
+            )?.provider ?: error("Economy service not present")
+        }
+
         val localizationManager: LocalizationManager?
             get() = LocalizationManager.getInstance(
                 getPlugin(

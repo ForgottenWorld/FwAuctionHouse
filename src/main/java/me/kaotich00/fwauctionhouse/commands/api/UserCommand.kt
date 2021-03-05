@@ -5,25 +5,21 @@ import org.bukkit.command.CommandException
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-open class UserCommand : Command {
+abstract class UserCommand(
+        override val name: String,
+        override val info: String?,
+        override val requiredArgs: Int,
+        override val usage: String?
+    ) : Command {
 
-    override fun onCommand(sender: CommandSender, args: Array<String>) {
+    final override fun onCommand(sender: CommandSender, args: Array<String>) {
         if (sender !is Player) {
             sender.sendMessage(MessageUtils.formatErrorMessage("Only players can run this command"))
             throw CommandException()
         }
+        doCommand(sender, args)
     }
 
-    override val name: String?
-        get() = null
-
-    override val usage: String?
-        get() = null
-
-    override val info: String?
-        get() = null
-
-    override val requiredArgs: Int?
-        get() = null
+    protected abstract fun doCommand(sender: Player, args: Array<String>)
 
 }
