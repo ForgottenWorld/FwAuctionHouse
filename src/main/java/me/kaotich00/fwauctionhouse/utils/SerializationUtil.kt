@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 object SerializationUtil {
-    @Throws(IllegalStateException::class)
+
     fun toBase64(stack: ItemStack?): String {
         return try {
             val outputStream = ByteArrayOutputStream()
@@ -24,7 +24,6 @@ object SerializationUtil {
         }
     }
 
-    @Throws(IOException::class)
     fun fromBase64(data: String?): ItemStack {
         return try {
             val inputStream = ByteArrayInputStream(Base64Coder.decodeLines(data))

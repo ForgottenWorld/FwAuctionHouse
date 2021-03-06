@@ -54,7 +54,7 @@ class MarketCommandManager : TabExecutor {
         alias: String,
         args: Array<String>
     ): List<String?> {
-        val suggestions: MutableList<String?> = ArrayList()
+        val suggestions = mutableListOf<String>()
         var argsIndex = ""
 
         if (args.size == 1) {

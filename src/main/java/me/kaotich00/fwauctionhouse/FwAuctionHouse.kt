@@ -21,7 +21,7 @@ class FwAuctionHouse : JavaPlugin() {
         sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Initializing database...")
         initStorage()
         sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Loading localization...")
-        LocalizationManager.getInstance(this)!!.loadLanguageFile()
+        LocalizationManager.loadLanguageFile()
         sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Registering commands...")
         registerCommands()
         sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Scheduling tasks...")
@@ -70,12 +70,5 @@ class FwAuctionHouse : JavaPlugin() {
                 Economy::class.java
             )?.provider ?: error("Economy service not present")
         }
-
-        val localizationManager: LocalizationManager?
-            get() = LocalizationManager.getInstance(
-                getPlugin(
-                    FwAuctionHouse::class.java
-                )
-            )
     }
 }
