@@ -2,7 +2,6 @@ package me.kaotich00.fwauctionhouse.commands
 
 import me.kaotich00.fwauctionhouse.FwAuctionHouse
 import me.kaotich00.fwauctionhouse.commands.api.Command
-import me.kaotich00.fwauctionhouse.commands.user.ConfirmCommand
 import me.kaotich00.fwauctionhouse.commands.user.DeclineCommand
 import me.kaotich00.fwauctionhouse.commands.user.SellCommand
 import me.kaotich00.fwauctionhouse.commands.user.ValidateTokenCommand

@@ -30,14 +30,14 @@ class SqlStorage(override val plugin: FwAuctionHouse, private val connectionFact
     override val connection: Connection?
         get() = connectionFactory.connection
 
-    override fun insertListing(seller: Player, itemStack: ItemStack, unitPrice: Float?) {
+    override fun insertListing(seller: Player, itemStack: ItemStack, unitPrice: Double?) {
         try {
             connection.use { c ->
                 val insertListing = c!!.prepareStatement(INSERT_LISTING)
                 insertListing.setString(1, seller.uniqueId.toString())
                 insertListing.setString(2, seller.name)
                 insertListing.setInt(3, itemStack.amount)
-                insertListing.setFloat(4, unitPrice!!)
+                insertListing.setDouble(4, unitPrice!!)
                 insertListing.setString(5, SerializationUtil.toBase64(itemStack))
                 insertListing.setString(6, itemStack.i18NDisplayName)
                 insertListing.setString(7, itemStack.type.toString())
@@ -61,7 +61,7 @@ class SqlStorage(override val plugin: FwAuctionHouse, private val connectionFact
                                     val listingId = rs.getInt("id")
                                     val buyerName = rs.getString("buyer_name")
                                     val amount = rs.getInt("amount")
-                                    val totalCost = rs.getFloat("unit_price") * amount
+                                    val totalCost = rs.getDouble("unit_price") * amount
                                     val itemType = rs.getString("item_stack")
                                     val itemStack = SerializationUtil.fromBase64(itemType)
                                     if (buyerName != null && itemStack != null) {

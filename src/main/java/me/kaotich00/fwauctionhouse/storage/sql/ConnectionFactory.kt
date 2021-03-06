@@ -6,10 +6,6 @@ import java.sql.SQLException
 
 interface ConnectionFactory {
     fun init(plugin: FwAuctionHouse?)
-
-    @Throws(Exception::class)
     fun shutdown()
-
-    @get:Throws(SQLException::class)
     val connection: Connection
 }

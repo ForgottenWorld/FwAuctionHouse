@@ -4,7 +4,7 @@ import me.kaotich00.fwauctionhouse.FwAuctionHouse
 import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.objects.PendingSell
 import me.kaotich00.fwauctionhouse.objects.PendingToken
-import me.kaotich00.fwauctionhouse.storage.StorageFactory
+import me.kaotich00.fwauctionhouse.storage.StorageProvider
 import me.kaotich00.fwauctionhouse.utils.ListingStatus
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.ClickEvent
@@ -13,36 +13,34 @@ import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.*
 import java.util.concurrent.CompletableFuture
 
 object SimpleMarketService {
 
-    private val pendingSells = mutableSetOf<PendingSell>()
-    private val pendingTokens = mutableSetOf<PendingToken>()
+    private val pendingSells = mutableMapOf<Int, PendingSell>()
+    private val pendingTokens = mutableMapOf<Int, PendingToken>()
 
     fun scheduleSellingTask() {
-
         Bukkit.getScheduler().scheduleSyncRepeatingTask(
             JavaPlugin.getPlugin(
                 FwAuctionHouse::class.java
             ), {
                 CompletableFuture.supplyAsync {
-                    StorageFactory.instance?.storageMethod?.pendingSells
+                    StorageProvider.storageInstance.storageMethod.pendingSells
                 }.thenAccept { pendingSells ->
                     for (pendingSell in pendingSells) {
                         val player = Bukkit.getPlayer(pendingSell.buyerName)
                         if (player == null) {
                             val offlinePlayer = Bukkit.getOfflinePlayerIfCached(pendingSell.buyerName)
                             if (offlinePlayer == null) {
-                                StorageFactory.instance?.storageMethod?.updateListingStatus(
+                                StorageProvider.storageInstance.storageMethod.updateListingStatus(
                                     pendingSell.listingId,
                                     ListingStatus.NO_USER_FOUND
                                 )
                             }
                             continue
                         }
-                        if (getPendingSell(pendingSell.listingId).isPresent) {
+                        if (getPendingSell(pendingSell.listingId) != null) {
                             continue
                         }
                         if (player.inventory.firstEmpty() == -1) {
@@ -51,7 +49,7 @@ object SimpleMarketService {
                         }
                         if (FwAuctionHouse.economy.getBalance(player) < pendingSell.totalCost) {
                             Message.NOT_ENOUGH_MONEY.send(player)
-                            StorageFactory.instance.storageMethod.updateListingStatus(
+                            StorageProvider.storageInstance.storageMethod.updateListingStatus(
                                 pendingSell.listingId,
                                 ListingStatus.NOT_ENOUGH_MONEY
                             )
@@ -108,26 +106,26 @@ object SimpleMarketService {
                 FwAuctionHouse::class.java
             ), {
                 CompletableFuture.supplyAsync {
-                    val pendingTokens = StorageFactory.instance?.storageMethod?.pendingTokens
-                    pendingTokens
+                    StorageProvider.storageInstance.storageMethod.pendingTokens
                 }.thenAccept { pendingTokens ->
                     for (pendingToken in pendingTokens) {
                         val player = Bukkit.getPlayer(pendingToken.username) ?: continue
-                        if (getPendingToken(pendingToken.sessionId).isPresent) {
+                        if (getPendingToken(pendingToken.sessionId) != null) {
                             continue
                         }
                         addToPendingToken(pendingToken)
-                        val confirmPurchase = TextComponent("[CLICK HERE TO CONFIRM YOUR IDENTITY]\n")
-                        confirmPurchase.color = ChatColor.GREEN
-                        confirmPurchase.clickEvent =
-                            ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market validateToken " + pendingToken.sessionId)
-                        confirmPurchase.hoverEvent = HoverEvent(
-                            HoverEvent.Action.SHOW_TEXT, ComponentBuilder("Click to validate your identity").color(
-                                ChatColor.GREEN
-                            ).italic(true).create()
-                        )
+                        val confirmPurchase = TextComponent("[CLICK HERE TO CONFIRM YOUR IDENTITY]\n").apply {
+                            color = ChatColor.GREEN
+                            clickEvent =
+                                ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market validateToken " + pendingToken.sessionId)
+                            hoverEvent = HoverEvent(
+                                HoverEvent.Action.SHOW_TEXT, ComponentBuilder("Click to validate your identity").color(
+                                    ChatColor.GREEN
+                                ).italic(true).create()
+                            )
+                        }
+
                         val message = ComponentBuilder()
-                        message
                             .append(Message.VALIDATED_TOKEN_MESSAGE.asString())
                             .append(confirmPurchase)
                             .append(
@@ -144,26 +142,22 @@ object SimpleMarketService {
     }
 
     fun addToPendingSells(pendingSell: PendingSell) {
-        pendingSells.add(pendingSell)
+        pendingSells[pendingSell.listingId] = pendingSell
     }
 
     fun removeFromPendingSells(pendingSell: PendingSell) {
-        pendingSells.remove(pendingSell)
+        pendingSells.remove(pendingSell.listingId)
     }
 
-    fun getPendingSell(id: Int): Optional<PendingSell> {
-        return pendingSells.stream().filter { pendingSell: PendingSell -> pendingSell.listingId == id }.findFirst()
-    }
+    fun getPendingSell(id: Int) = pendingSells[id]
 
     fun addToPendingToken(pendingToken: PendingToken) {
-        pendingTokens.add(pendingToken)
+        pendingTokens[pendingToken.sessionId] = pendingToken
     }
 
     fun removeFromPendingToken(pendingToken: PendingToken) {
-        pendingTokens.remove(pendingToken)
+        pendingTokens.remove(pendingToken.sessionId)
     }
 
-    fun getPendingToken(id: Int): Optional<PendingToken> {
-        return pendingTokens.stream().filter { pendingSell: PendingToken -> pendingSell.sessionId == id }.findFirst()
-    }
+    fun getPendingToken(id: Int) = pendingTokens[id]
 }

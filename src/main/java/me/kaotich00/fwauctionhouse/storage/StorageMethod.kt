@@ -13,9 +13,8 @@ interface StorageMethod {
     fun init()
     fun shutdown()
 
-    @get:Throws(SQLException::class)
     val connection: Connection?
-    fun insertListing(seller: Player, itemStack: ItemStack, unitPrice: Float?)
+    fun insertListing(seller: Player, itemStack: ItemStack, unitPrice: Double?)
     val pendingSells: List<PendingSell>
     fun updateListingStatus(listingId: Int, status: Int)
     fun deletePendingSell(listingId: Int)

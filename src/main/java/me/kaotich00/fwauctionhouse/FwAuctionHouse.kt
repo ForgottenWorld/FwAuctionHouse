@@ -3,7 +3,7 @@ package me.kaotich00.fwauctionhouse
 import me.kaotich00.fwauctionhouse.commands.MarketCommandManager
 import me.kaotich00.fwauctionhouse.locale.LocalizationManager
 import me.kaotich00.fwauctionhouse.services.SimpleMarketService
-import me.kaotich00.fwauctionhouse.storage.StorageFactory
+import me.kaotich00.fwauctionhouse.storage.StorageProvider
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -46,13 +46,11 @@ class FwAuctionHouse : JavaPlugin() {
     }
 
     private fun initStorage() {
-        val storage = StorageFactory.instance
-        storage!!.init()
+        StorageProvider.storageInstance.init()
     }
 
     private fun shutdownStorage() {
-        val storage = StorageFactory.instance
-        storage!!.shutdown()
+        StorageProvider.storageInstance.shutdown()
     }
 
     private fun scheduleTasks() {
@@ -65,7 +63,7 @@ class FwAuctionHouse : JavaPlugin() {
     }
 
     companion object {
-        var defaultConfig: FileConfiguration? = null
+        lateinit var defaultConfig: FileConfiguration
 
         val economy by lazy {
             Bukkit.getServer().servicesManager.getRegistration(
