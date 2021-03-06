@@ -5,7 +5,6 @@ import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.storage.StorageProvider
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.concurrent.CompletableFuture
@@ -34,11 +33,10 @@ class SellCommand : UserCommand(
         CompletableFuture.supplyAsync {
             storage.storageMethod.insertListing(sender, itemToSell, sellPrice)
             true
-        }.thenAccept { result: Boolean? ->
+        }.thenAccept {
             sender.playSound(sender.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
             Message.SOLD_ITEM.send(sender, itemToSell.i18NDisplayName, itemToSell.amount, sellPrice)
-            val slot = playerInventory.heldItemSlot
-            playerInventory.setItem(slot, ItemStack(Material.AIR))
+            playerInventory.setItem(playerInventory.heldItemSlot, ItemStack(Material.AIR))
         }
     }
 

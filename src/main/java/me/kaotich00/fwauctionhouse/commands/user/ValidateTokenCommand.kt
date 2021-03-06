@@ -2,12 +2,9 @@ package me.kaotich00.fwauctionhouse.commands.user
 
 import me.kaotich00.fwauctionhouse.commands.api.UserCommand
 import me.kaotich00.fwauctionhouse.message.Message
-import me.kaotich00.fwauctionhouse.objects.PendingToken
 import me.kaotich00.fwauctionhouse.services.SimpleMarketService
 import me.kaotich00.fwauctionhouse.storage.StorageProvider
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import java.util.*
 
 class ValidateTokenCommand : UserCommand(
     "validateToken",
@@ -23,13 +20,11 @@ class ValidateTokenCommand : UserCommand(
             return
         }
 
-        val pendingToken = SimpleMarketService.getPendingToken(sessionId)
+        val pendingToken = SimpleMarketService.getPendingToken(sessionId) ?: return
 
-        if(pendingToken != null) {
-            Message.VALIDATED_TOKEN.send(sender)
-            StorageProvider.storageInstance.storageMethod.validateToken(sessionId)
-            SimpleMarketService.removeFromPendingToken(pendingToken)
-        }
+        Message.VALIDATED_TOKEN.send(sender)
+        StorageProvider.storageInstance.storageMethod.validateToken(sessionId)
+        SimpleMarketService.removeFromPendingToken(pendingToken)
     }
 
 }

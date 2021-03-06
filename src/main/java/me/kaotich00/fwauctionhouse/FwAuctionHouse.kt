@@ -59,7 +59,7 @@ class FwAuctionHouse : JavaPlugin() {
     }
 
     private fun registerCommands() {
-        getCommand("market")!!.setExecutor(MarketCommandManager(this))
+        getCommand("market")!!.setExecutor(MarketCommandManager())
     }
 
     companion object {

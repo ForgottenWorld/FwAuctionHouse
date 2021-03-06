@@ -6,7 +6,6 @@ import me.kaotich00.fwauctionhouse.objects.PendingToken
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.sql.Connection
-import java.sql.SQLException
 
 interface StorageMethod {
     val plugin: FwAuctionHouse

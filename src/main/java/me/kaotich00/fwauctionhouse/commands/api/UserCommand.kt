@@ -1,7 +1,6 @@
 package me.kaotich00.fwauctionhouse.commands.api
 
 import me.kaotich00.fwauctionhouse.utils.MessageUtils
-import org.bukkit.command.CommandException
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -15,7 +14,7 @@ abstract class UserCommand(
     final override fun onCommand(sender: CommandSender, args: Array<String>) {
         if (sender !is Player) {
             sender.sendMessage(MessageUtils.formatErrorMessage("Only players can run this command"))
-            throw CommandException()
+            return
         }
         doCommand(sender, args)
     }

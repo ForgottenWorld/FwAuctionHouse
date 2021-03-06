@@ -4,7 +4,6 @@ import me.kaotich00.fwauctionhouse.FwAuctionHouse
 import me.kaotich00.fwauctionhouse.storage.sql.SqlStorage
 import me.kaotich00.fwauctionhouse.storage.sql.hikari.MySQLConnectionFactory
 import me.kaotich00.fwauctionhouse.storage.util.StorageCredentials
-import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 
 object StorageProvider {

@@ -1,8 +1,6 @@
 package me.kaotich00.fwauctionhouse.commands.api
 
 import me.kaotich00.fwauctionhouse.utils.MessageUtils
-import org.bukkit.command.CommandException
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 abstract class AdminCommand(
@@ -20,7 +18,7 @@ abstract class AdminCommand(
     final override fun doCommand(sender: Player, args: Array<String>) {
         if (!sender.hasPermission("fwauctionhouse.admin")) {
             sender.sendMessage(MessageUtils.formatErrorMessage("You don't have permissions to run this command"))
-            throw CommandException()
+            return
         }
 
         doAdminCommand(sender, args)
