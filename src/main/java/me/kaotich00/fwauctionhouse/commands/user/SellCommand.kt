@@ -35,7 +35,7 @@ class SellCommand : UserCommand(
             true
         }.thenAccept {
             sender.playSound(sender.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
-            Message.SOLD_ITEM.send(sender, itemToSell.i18NDisplayName, itemToSell.amount, sellPrice)
+            Message.SOLD_ITEM.send(sender, itemToSell.i18NDisplayName ?: "N/D", itemToSell.amount, sellPrice)
             playerInventory.setItem(playerInventory.heldItemSlot, ItemStack(Material.AIR))
         }
     }

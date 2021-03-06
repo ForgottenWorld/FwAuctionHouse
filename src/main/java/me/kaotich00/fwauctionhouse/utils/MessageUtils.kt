@@ -40,11 +40,12 @@ object MessageUtils {
     }
 
     fun rewritePlaceholders(input: String): String {
-        var input = input
+        var inputModified = input
         var i = 0
-        while (input.contains("{}")) {
-            input = input.replaceFirst("\\{\\}".toRegex(), "{" + i++ + "}")
+        while (inputModified.contains("{}")) {
+            inputModified = inputModified.replaceFirst("{}", "{" + i++ + "}")
         }
-        return input
+        return inputModified
     }
+
 }

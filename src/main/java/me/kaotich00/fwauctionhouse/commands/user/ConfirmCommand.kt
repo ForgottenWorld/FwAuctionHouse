@@ -27,8 +27,8 @@ class ConfirmCommand : UserCommand(
         if (pendingSell != null) {
             val boughtItem = pendingSell.itemStack
             sender.inventory.addItem(boughtItem)
-            FwAuctionHouse.economy.withdrawPlayer(sender, pendingSell.totalCost.toDouble())
-            Message.BOUGHT_ITEM.send(sender, boughtItem!!.i18NDisplayName, boughtItem.amount, pendingSell.totalCost)
+            FwAuctionHouse.economy.withdrawPlayer(sender, pendingSell.totalCost)
+            Message.BOUGHT_ITEM.send(sender, boughtItem.i18NDisplayName ?: "N/D", boughtItem.amount, pendingSell.totalCost)
             sender.playSound(sender.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
             CompletableFuture.runAsync {
                 SimpleMarketService.removeFromPendingSells(pendingSell)

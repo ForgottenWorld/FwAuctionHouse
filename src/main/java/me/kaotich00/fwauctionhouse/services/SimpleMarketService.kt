@@ -80,7 +80,7 @@ object SimpleMarketService {
 
                         val message = ComponentBuilder().append(
                                 Message.PURCHASE_MESSAGE.asString(
-                                    pendingSell.itemStack.i18NDisplayName,
+                                    pendingSell.itemStack.i18NDisplayName ?: "N/D",
                                     pendingSell.itemStack.amount
                                 )
                             )
