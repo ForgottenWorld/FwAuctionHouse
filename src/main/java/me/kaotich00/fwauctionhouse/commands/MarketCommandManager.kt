@@ -38,7 +38,7 @@ class MarketCommandManager : TabExecutor {
         }
         val fwCommand = getCommand(args[0])
         if (fwCommand != null) {
-            if (fwCommand.requiredArgs > args.size) {
+            if (fwCommand.requiredArgs >= args.size) {
                 sender.sendMessage(MessageUtils.formatErrorMessage("Not enough arguments"))
                 sender.sendMessage(MessageUtils.formatErrorMessage(fwCommand.usage))
                 return true
