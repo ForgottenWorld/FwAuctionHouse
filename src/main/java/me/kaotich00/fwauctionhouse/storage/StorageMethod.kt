@@ -8,15 +8,24 @@ import org.bukkit.inventory.ItemStack
 import java.sql.Connection
 
 interface StorageMethod {
+
     val plugin: FwAuctionHouse
+
     fun init()
+
     fun shutdown()
 
-    val connection: Connection?
-    fun insertListing(seller: Player, itemStack: ItemStack, unitPrice: Double?)
-    val pendingSells: List<PendingSell>
+    val connection: Connection
+
+    fun insertListing(seller: Player, itemStack: ItemStack, unitPrice: Double)
+
+    fun getPendingSells(): List<PendingSell>
+
     fun updateListingStatus(listingId: Int, status: Int)
+
     fun deletePendingSell(listingId: Int)
-    val pendingTokens: List<PendingToken>
+
+    fun getPendingTokens(): List<PendingToken>
+
     fun validateToken(sessionId: Int)
 }

@@ -12,8 +12,11 @@ import java.sql.Connection
 import java.sql.SQLException
 import java.util.*
 
-class SqlStorage(override val plugin: FwAuctionHouse, private val connectionFactory: ConnectionFactory) :
-    StorageMethod {
+class SqlStorage(
+    override val plugin: FwAuctionHouse,
+    private val connectionFactory: ConnectionFactory
+) : StorageMethod {
+
     override fun init() {
         connectionFactory.init(plugin)
     }
@@ -26,65 +29,62 @@ class SqlStorage(override val plugin: FwAuctionHouse, private val connectionFact
         }
     }
 
-    @get:Throws(SQLException::class)
-    override val connection: Connection?
+    override val connection: Connection
         get() = connectionFactory.connection
 
-    override fun insertListing(seller: Player, itemStack: ItemStack, unitPrice: Double?) {
+    override fun insertListing(
+        seller: Player,
+        itemStack: ItemStack,
+        unitPrice: Double
+    ) {
         try {
             connection.use { c ->
-                val insertListing = c!!.prepareStatement(INSERT_LISTING)
-                insertListing.setString(1, seller.uniqueId.toString())
-                insertListing.setString(2, seller.name)
-                insertListing.setInt(3, itemStack.amount)
-                insertListing.setDouble(4, unitPrice!!)
-                insertListing.setString(5, SerializationUtil.toBase64(itemStack))
-                insertListing.setString(6, itemStack.i18NDisplayName)
-                insertListing.setString(7, itemStack.type.toString())
-                insertListing.setString(8, itemStack.i18NDisplayName)
-                insertListing.executeUpdate()
+                with (c.prepareStatement(INSERT_LISTING)) {
+                    setString(1, seller.uniqueId.toString())
+                    setString(2, seller.name)
+                    setInt(3, itemStack.amount)
+                    setDouble(4, unitPrice)
+                    setString(5, SerializationUtil.toBase64(itemStack))
+                    setString(6, itemStack.i18NDisplayName)
+                    setString(7, itemStack.type.toString())
+                    setString(8, itemStack.i18NDisplayName)
+                    executeUpdate()
+                }
             }
         } catch (e: SQLException) {
             e.printStackTrace()
         }
     }
 
-    override val pendingSells: List<PendingSell>
-        get() {
-            val pendingSellList: MutableList<PendingSell> = ArrayList()
-            try {
-                connection.use { c ->
-                    c!!.prepareStatement(SELECT_PENDING_SELLS).use { ps ->
-                        try {
-                            ps.executeQuery().use { rs ->
-                                while (rs.next()) {
-                                    val listingId = rs.getInt("id")
-                                    val buyerName = rs.getString("buyer_name")
-                                    val amount = rs.getInt("amount")
-                                    val totalCost = rs.getDouble("unit_price") * amount
-                                    val itemType = rs.getString("item_stack")
-                                    val itemStack = SerializationUtil.fromBase64(itemType)
-                                    if (buyerName != null && itemStack != null) {
-                                        val pendingSell = PendingSell(listingId, itemStack, buyerName, totalCost)
-                                        pendingSellList.add(pendingSell)
-                                    }
-                                }
-                            }
-                        } catch (e: IOException) {
-                            e.printStackTrace()
+    override fun getPendingSells(): List<PendingSell> {
+        val pendingSellList = mutableListOf<PendingSell>()
+        try {
+            connection.use { c ->
+                c.prepareStatement(SELECT_PENDING_SELLS).use { ps ->
+                    ps.executeQuery().use { rs ->
+                        while (rs.next()) {
+                            val listingId = rs.getInt("id")
+                            val buyerName = rs.getString("buyer_name")
+                            val amount = rs.getInt("amount")
+                            val totalCost = rs.getDouble("unit_price") * amount
+                            val itemType = rs.getString("item_stack")
+                            val itemStack = itemType?.let(SerializationUtil::fromBase64)
+                            if (buyerName == null || itemStack == null) continue
+                            pendingSellList.add(PendingSell(listingId, itemStack, buyerName, totalCost))
                         }
                     }
                 }
-            } catch (e: SQLException) {
-                e.printStackTrace()
             }
-            return pendingSellList
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
+        return pendingSellList
+    }
 
     override fun updateListingStatus(listingId: Int, status: Int) {
         try {
             connection.use { c ->
-                val updateListing = c!!.prepareStatement(UPDATE_LISTING_STATUS)
+                val updateListing = c.prepareStatement(UPDATE_LISTING_STATUS)
                 updateListing.setInt(1, status)
                 updateListing.setInt(2, listingId)
                 updateListing.executeUpdate()
@@ -97,7 +97,7 @@ class SqlStorage(override val plugin: FwAuctionHouse, private val connectionFact
     override fun deletePendingSell(listingId: Int) {
         try {
             connection.use { c ->
-                val updateListing = c!!.prepareStatement(DELETE_PENDING_SELLS)
+                val updateListing = c.prepareStatement(DELETE_PENDING_SELLS)
                 updateListing.setInt(1, listingId)
                 updateListing.executeUpdate()
             }
@@ -106,33 +106,32 @@ class SqlStorage(override val plugin: FwAuctionHouse, private val connectionFact
         }
     }
 
-    override val pendingTokens: List<PendingToken>
-        get() {
-            val pendingTokens: MutableList<PendingToken> = ArrayList()
-            try {
-                connection.use { c ->
-                    c!!.prepareStatement(SELECT_PENDING_TOKENS).use { ps ->
-                        ps.executeQuery().use { rs ->
-                            while (rs.next()) {
-                                val sessionId = rs.getInt("id")
-                                val username = rs.getString("username")
-                                val token = rs.getString("token")
-                                val pendingToken = PendingToken(sessionId, username, token)
-                                pendingTokens.add(pendingToken)
-                            }
+    override fun getPendingTokens(): List<PendingToken> {
+        val pendingTokens: MutableList<PendingToken> = ArrayList()
+        try {
+            connection.use { c ->
+                c.prepareStatement(SELECT_PENDING_TOKENS).use { ps ->
+                    ps.executeQuery().use { rs ->
+                        while (rs.next()) {
+                            val sessionId = rs.getInt("id")
+                            val username = rs.getString("username")
+                            val token = rs.getString("token")
+                            val pendingToken = PendingToken(sessionId, username, token)
+                            pendingTokens.add(pendingToken)
                         }
                     }
                 }
-            } catch (e: SQLException) {
-                e.printStackTrace()
             }
-            return pendingTokens
+        } catch (e: SQLException) {
+            e.printStackTrace()
         }
+        return pendingTokens
+    }
 
     override fun validateToken(sessionId: Int) {
         try {
             connection.use { c ->
-                val updateListing = c!!.prepareStatement(VALIDATE_TOKEN)
+                val updateListing = c.prepareStatement(VALIDATE_TOKEN)
                 updateListing.setInt(1, sessionId)
                 updateListing.executeUpdate()
             }

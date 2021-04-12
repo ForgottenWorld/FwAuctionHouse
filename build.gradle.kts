@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("org.slf4j:slf4j-simple:1.6.4")
-    compileOnly("com.destroystokyo.paper:paper-api:1.16.4-R0.1-SNAPSHOT")
+    compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 }
 

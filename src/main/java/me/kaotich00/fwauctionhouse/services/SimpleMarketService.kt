@@ -6,11 +6,10 @@ import me.kaotich00.fwauctionhouse.objects.PendingSell
 import me.kaotich00.fwauctionhouse.objects.PendingToken
 import me.kaotich00.fwauctionhouse.storage.StorageProvider
 import me.kaotich00.fwauctionhouse.utils.ListingStatus
-import net.md_5.bungee.api.ChatColor
-import net.md_5.bungee.api.chat.ClickEvent
-import net.md_5.bungee.api.chat.ComponentBuilder
-import net.md_5.bungee.api.chat.HoverEvent
-import net.md_5.bungee.api.chat.TextComponent
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.CompletableFuture
@@ -26,10 +25,11 @@ object SimpleMarketService {
                 FwAuctionHouse::class.java
             ), {
                 CompletableFuture.supplyAsync {
-                    StorageProvider.storageInstance.storageMethod.pendingSells
+                    StorageProvider.storageInstance.storageMethod.getPendingSells()
                 }.thenAccept { pendingSells ->
                     for (pendingSell in pendingSells) {
                         val player = Bukkit.getPlayer(pendingSell.buyerName)
+
                         if (player == null) {
                             val offlinePlayer = Bukkit.getOfflinePlayerIfCached(pendingSell.buyerName)
                             if (offlinePlayer == null) {
@@ -40,13 +40,16 @@ object SimpleMarketService {
                             }
                             continue
                         }
+
                         if (getPendingSell(pendingSell.listingId) != null) {
                             continue
                         }
+
                         if (player.inventory.firstEmpty() == -1) {
                             Message.INVENTORY_FULL.send(player)
                             continue
                         }
+
                         if (FwAuctionHouse.economy.getBalance(player) < pendingSell.totalCost) {
                             Message.NOT_ENOUGH_MONEY.send(player)
                             StorageProvider.storageInstance.storageMethod.updateListingStatus(
@@ -58,42 +61,43 @@ object SimpleMarketService {
 
                         addToPendingSells(pendingSell)
 
-                        val confirmPurchase = TextComponent("[CLICK HERE TO CONFIRM]").apply {
-                            color = ChatColor.GREEN
-                            clickEvent = ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market confirm " + pendingSell.listingId)
-                            hoverEvent = HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT, ComponentBuilder("Click to accept the purchase").color(
-                                    ChatColor.GREEN
-                                ).italic(true).create()
+                        val confirmPurchase = Component.text("[CLICK HERE TO CONFIRM]")
+                            .color(NamedTextColor.GREEN)
+                            .clickEvent(ClickEvent.runCommand("/market confirm " + pendingSell.listingId))
+                            .hoverEvent(
+                                Component
+                                    .text("Click to accept the purchase")
+                                    .color(NamedTextColor.GREEN)
+                                    .decorate(TextDecoration.ITALIC)
+                                    .asHoverEvent()
                             )
-                        }
 
-                        val declinePurchase = TextComponent("[CLICK HERE TO DECLINE]\n").apply {
-                            color = ChatColor.RED
-                            clickEvent = ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market decline " + pendingSell.listingId)
-                            hoverEvent = HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT, ComponentBuilder("Click to decline the purchase").color(
-                                    ChatColor.RED
-                                ).italic(true).create()
+                        val declinePurchase = Component.text("[CLICK HERE TO DECLINE]\n")
+                            .color(NamedTextColor.RED)
+                            .clickEvent(ClickEvent.runCommand("/market decline " + pendingSell.listingId))
+                            .hoverEvent(
+                                Component.text("Click to decline the purchase")
+                                    .color(NamedTextColor.RED)
+                                    .decorate(TextDecoration.ITALIC)
+                                    .asHoverEvent()
                             )
-                        }
 
-                        val message = ComponentBuilder().append(
-                                Message.PURCHASE_MESSAGE.asString(
-                                    pendingSell.itemStack.i18NDisplayName ?: "N/D",
-                                    pendingSell.itemStack.amount
-                                )
+                        val message = Component.text(
+                            Message.PURCHASE_MESSAGE.asString(
+                                pendingSell.itemStack.i18NDisplayName ?: "N/D",
+                                pendingSell.itemStack.amount
                             )
-                            .append(confirmPurchase)
-                            .append(" ")
+                        ).append(confirmPurchase)
+                            .append(Component.text(" "))
                             .append(declinePurchase)
                             .append(
-                                """
-                                ${ChatColor.GREEN}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}
-                                ------------------------------------------
-                                """.trimIndent()
+                                Component.text("""------------------------------------------""")
+                                    .color(NamedTextColor.GREEN)
+                                    .decorate(TextDecoration.STRIKETHROUGH)
+                                    .decorate(TextDecoration.BOLD)
                             )
-                        player.spigot().sendMessage(*message.create())
+
+                        player.sendMessage(message)
                     }
                 }
             }, 20, 20
@@ -106,35 +110,35 @@ object SimpleMarketService {
                 FwAuctionHouse::class.java
             ), {
                 CompletableFuture.supplyAsync {
-                    StorageProvider.storageInstance.storageMethod.pendingTokens
+                    StorageProvider.storageInstance.storageMethod.getPendingTokens()
                 }.thenAccept { pendingTokens ->
                     for (pendingToken in pendingTokens) {
                         val player = Bukkit.getPlayer(pendingToken.username) ?: continue
+
                         if (getPendingToken(pendingToken.sessionId) != null) {
                             continue
                         }
-                        addToPendingToken(pendingToken)
-                        val confirmPurchase = TextComponent("[CLICK HERE TO CONFIRM YOUR IDENTITY]\n").apply {
-                            color = ChatColor.GREEN
-                            clickEvent =
-                                ClickEvent(ClickEvent.Action.RUN_COMMAND, "/market validateToken " + pendingToken.sessionId)
-                            hoverEvent = HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT, ComponentBuilder("Click to validate your identity").color(
-                                    ChatColor.GREEN
-                                ).italic(true).create()
-                            )
-                        }
 
-                        val message = ComponentBuilder()
-                            .append(Message.VALIDATED_TOKEN_MESSAGE.asString())
+                        addToPendingToken(pendingToken)
+
+                        val confirmPurchase = Component.text("[CLICK HERE TO CONFIRM YOUR IDENTITY]\n", NamedTextColor.GREEN)
+                            .clickEvent(ClickEvent.runCommand("/market validateToken " + pendingToken.sessionId))
+                            .hoverEvent(
+                                Component.text("Click to validate your identity", NamedTextColor.GREEN)
+                                    .decorate(TextDecoration.ITALIC)
+                                    .asHoverEvent()
+                            )
+
+                        val message = Component.text(Message.VALIDATED_TOKEN_MESSAGE.asString())
                             .append(confirmPurchase)
                             .append(
-                                """
-                                            ${ChatColor.GREEN}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}
-                                            ------------------------------------------
-                                            """.trimIndent()
+                                Component.text("""------------------------------------------""")
+                                    .color(NamedTextColor.GREEN)
+                                    .decorate(TextDecoration.STRIKETHROUGH)
+                                    .decorate(TextDecoration.BOLD)
                             )
-                        player.spigot().sendMessage(*message.create())
+
+                        player.sendMessage(message)
                     }
                 }
             }, 40, 40

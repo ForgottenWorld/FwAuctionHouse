@@ -7,6 +7,7 @@ import me.kaotich00.fwauctionhouse.storage.StorageProvider
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
+import org.bukkit.ChatColor.*
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -15,19 +16,19 @@ class FwAuctionHouse : JavaPlugin() {
     override fun onEnable() {
         val sender = Bukkit.getConsoleSender()
 
-        sender.sendMessage(ChatColor.DARK_GRAY.toString() + "" + ChatColor.STRIKETHROUGH + "=====================[" + ChatColor.GRAY + " Fw" + ChatColor.GREEN + "Market " + ChatColor.DARK_GRAY + "]======================")
-        sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Loading configuration...")
+        sender.sendMessage("$DARK_GRAY$STRIKETHROUGH=====================[$GRAY Fw${GREEN}Market $DARK_GRAY]======================")
+        sender.sendMessage("$GRAY   >> $RESET Loading configuration...")
         loadConfiguration()
-        sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Initializing database...")
+        sender.sendMessage("$GRAY   >> $RESET Initializing database...")
         initStorage()
-        sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Loading localization...")
+        sender.sendMessage("$GRAY   >> $RESET Loading localization...")
         LocalizationManager.loadLanguageFile()
-        sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Registering commands...")
+        sender.sendMessage("$GRAY   >> $RESET Registering commands...")
         registerCommands()
-        sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Scheduling tasks...")
+        sender.sendMessage("$GRAY   >> $RESET Scheduling tasks...")
         scheduleTasks()
-        sender.sendMessage(ChatColor.GRAY.toString() + "   >> " + ChatColor.RESET + " Registering economy...")
-        sender.sendMessage(ChatColor.DARK_GRAY.toString() + "" + ChatColor.STRIKETHROUGH + "====================================================")
+        sender.sendMessage("$GRAY   >> $RESET Registering economy...")
+        sender.sendMessage("$DARK_GRAY$STRIKETHROUGH====================================================")
     }
 
     override fun onDisable() {
