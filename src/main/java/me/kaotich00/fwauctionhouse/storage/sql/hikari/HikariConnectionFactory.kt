@@ -8,10 +8,14 @@ import me.kaotich00.fwauctionhouse.storage.util.StorageCredentials
 import java.sql.Connection
 import java.sql.SQLException
 
-open class HikariConnectionFactory(protected val configuration: StorageCredentials) : ConnectionFactory {
+open class HikariConnectionFactory(
+    private val configuration: StorageCredentials
+) : ConnectionFactory {
+
     private var hikari: HikariDataSource? = null
+
     protected open val drivers: String?
-        protected get() = null
+        get() = null
 
     protected open fun addConnectionProperties(config: HikariConfig, properties: MutableMap<String?, String?>) {
         for ((key, value) in properties) {
@@ -19,9 +23,9 @@ open class HikariConnectionFactory(protected val configuration: StorageCredentia
         }
     }
 
-    protected fun addConnectionInfo(config: HikariConfig?) {
+    private fun addConnectionInfo(config: HikariConfig?) {
         var address = configuration.host
-        val addressSplit = address!!.split(":").toTypedArray()
+        val addressSplit = address.split(":").toTypedArray()
         address = addressSplit[0]
         val port = if (addressSplit.size > 1) addressSplit[1] else "3306"
         config!!.dataSourceClassName = drivers
@@ -33,7 +37,7 @@ open class HikariConnectionFactory(protected val configuration: StorageCredentia
         config.password = configuration.password
     }
 
-    override fun init(plugin: FwAuctionHouse?) {
+    override fun init(plugin: FwAuctionHouse) {
         var config: HikariConfig? = null
         try {
             config = HikariConfig()
@@ -47,18 +51,15 @@ open class HikariConnectionFactory(protected val configuration: StorageCredentia
     }
 
     override fun shutdown() {
-        if (hikari != null) {
-            hikari!!.close()
-        }
+        hikari?.close()
     }
 
-    @get:Throws(SQLException::class)
     override val connection: Connection
         get() {
-            if (hikari == null) {
-                throw SQLException("Unable to get a connection from the pool. (hikari is null)")
-            }
-            return hikari!!.connection
+            val hikari = this.hikari
+                ?: throw SQLException("Unable to get a connection from the pool. (hikari is null)")
+
+            return hikari.connection
                 ?: throw SQLException("Unable to get a connection from the pool. (getConnection returned null)")
         }
 }

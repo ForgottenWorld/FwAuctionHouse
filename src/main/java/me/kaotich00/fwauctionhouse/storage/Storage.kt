@@ -2,7 +2,11 @@ package me.kaotich00.fwauctionhouse.storage
 
 import me.kaotich00.fwauctionhouse.FwAuctionHouse
 
-class Storage(private val plugin: FwAuctionHouse, val storageMethod: StorageMethod) {
+class Storage(
+    private val plugin: FwAuctionHouse,
+    val storageMethod: StorageMethod
+) {
+
     fun init() {
         try {
             storageMethod.init()

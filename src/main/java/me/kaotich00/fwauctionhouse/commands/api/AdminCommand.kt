@@ -8,12 +8,7 @@ abstract class AdminCommand(
     info: String?,
     requiredArgs: Int,
     usage: String?
-) : UserCommand(
-    name,
-    info,
-    requiredArgs,
-    usage
-) {
+) : UserCommand(name, info, requiredArgs, usage) {
 
     final override fun doCommand(sender: Player, args: Array<String>) {
         if (!sender.hasPermission("fwauctionhouse.admin")) {

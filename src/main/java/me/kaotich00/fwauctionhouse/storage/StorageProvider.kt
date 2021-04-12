@@ -9,23 +9,18 @@ import org.bukkit.plugin.java.JavaPlugin
 object StorageProvider {
 
     val storageInstance by lazy {
-        Storage(
-            JavaPlugin.getPlugin(
-                FwAuctionHouse::class.java
-            ), storageFromConfig
-        )
+        Storage(FwAuctionHouse.instance, getStorageFromConfig())
     }
 
-    private val storageFromConfig: StorageMethod
-        get() {
-            with(FwAuctionHouse.defaultConfig) {
-                val host        = getString("address")!!
-                val database    = getString("database")!!
-                val username    = getString("username")!!
-                val password    = getString("password")!!
-                val credentials = StorageCredentials(host, database, username, password)
+    private fun getStorageFromConfig(): StorageMethod {
+        with(FwAuctionHouse.defaultConfig) {
+            val host = getString("address")!!
+            val database = getString("database")!!
+            val username = getString("username")!!
+            val password = getString("password")!!
+            val credentials = StorageCredentials(host, database, username, password)
 
-                return SqlStorage(JavaPlugin.getPlugin(FwAuctionHouse::class.java), MySQLConnectionFactory(credentials))
-            }
+            return SqlStorage(FwAuctionHouse.instance, MySQLConnectionFactory(credentials))
         }
+    }
 }

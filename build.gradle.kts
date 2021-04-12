@@ -7,7 +7,6 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://jitpack.io")
@@ -19,6 +18,8 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:1.6.4")
     compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("com.github.BrunoSilvaFreire:Skedule:0.1.3")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0")
 }
 
 tasks.withType<ShadowJar>() {

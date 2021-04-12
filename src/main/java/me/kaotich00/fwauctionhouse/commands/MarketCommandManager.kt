@@ -63,6 +63,7 @@ class MarketCommandManager : TabExecutor {
                 suggestions.add(commandName)
             }
         }
+
         return NameUtil.filterByStart(suggestions, argsIndex)
     }
 

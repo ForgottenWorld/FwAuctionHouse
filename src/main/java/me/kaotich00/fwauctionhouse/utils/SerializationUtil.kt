@@ -10,31 +10,23 @@ import java.io.IOException
 
 object SerializationUtil {
 
-    fun toBase64(stack: ItemStack?): String {
-        return try {
-            val outputStream = ByteArrayOutputStream()
-            val dataOutput = BukkitObjectOutputStream(outputStream)
-            dataOutput.writeObject(stack)
-
-            // Serialize that array
-            dataOutput.close()
-            Base64Coder.encodeLines(outputStream.toByteArray())
-        } catch (e: Exception) {
-            throw IllegalStateException("Unable to save item stack.", e)
+    fun toBase64(stack: ItemStack?): String = try {
+        val outputStream = ByteArrayOutputStream()
+        BukkitObjectOutputStream(outputStream).use {
+            it.writeObject(stack)
         }
+        Base64Coder.encodeLines(outputStream.toByteArray())
+    } catch (e: Exception) {
+        throw IllegalStateException("Unable to save item stack.", e)
     }
 
-    fun fromBase64(data: String?): ItemStack {
-        return try {
-            val inputStream = ByteArrayInputStream(Base64Coder.decodeLines(data))
-            val dataInput = BukkitObjectInputStream(inputStream)
-            try {
-                dataInput.readObject() as ItemStack
-            } finally {
-                dataInput.close()
-            }
-        } catch (e: ClassNotFoundException) {
-            throw IOException("Unable to decode class type.", e)
+    fun fromBase64(data: String?): ItemStack = try {
+        BukkitObjectInputStream(
+            ByteArrayInputStream(Base64Coder.decodeLines(data))
+        ).use {
+            it.readObject() as ItemStack
         }
+    } catch (e: ClassNotFoundException) {
+        throw IOException("Unable to decode class type.", e)
     }
 }
