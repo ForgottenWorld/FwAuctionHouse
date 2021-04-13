@@ -1,12 +1,16 @@
 package me.kaotich00.fwauctionhouse.commands.user
 
+import com.google.inject.Inject
 import me.kaotich00.fwauctionhouse.commands.api.UserCommand
 import me.kaotich00.fwauctionhouse.message.Message
-import me.kaotich00.fwauctionhouse.services.SimpleMarketService
-import me.kaotich00.fwauctionhouse.storage.StorageProvider
+import me.kaotich00.fwauctionhouse.services.ListingsService
+import me.kaotich00.fwauctionhouse.storage.ListingsDao
 import org.bukkit.entity.Player
 
-class ValidateTokenCommand : UserCommand(
+class ValidateTokenCommand @Inject constructor(
+    private val listingsService: ListingsService,
+    private val listingsDao: ListingsDao
+) : UserCommand(
     "validateToken",
     "",
     1,
@@ -14,17 +18,16 @@ class ValidateTokenCommand : UserCommand(
 ) {
 
     override fun doCommand(sender: Player, args: Array<String>) {
-
         val sessionId = args[1].toIntOrNull() ?: run {
             sender.sendMessage("You must insert a valid session id")
             return
         }
 
-        val pendingToken = SimpleMarketService.getPendingToken(sessionId) ?: return
+        val pendingToken = listingsService.getPendingToken(sessionId) ?: return
 
         Message.VALIDATED_TOKEN.send(sender)
-        StorageProvider.storageInstance.storageMethod.validateToken(sessionId)
-        SimpleMarketService.removeFromPendingToken(pendingToken)
+        listingsDao.validateToken(sessionId)
+        listingsService.removeFromPendingToken(pendingToken)
     }
 
 }

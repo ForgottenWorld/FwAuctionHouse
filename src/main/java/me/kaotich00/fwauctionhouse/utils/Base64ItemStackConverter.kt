@@ -8,9 +8,9 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-object SerializationUtil {
+object Base64ItemStackConverter {
 
-    fun toBase64(stack: ItemStack?): String = try {
+    fun toBase64(stack: ItemStack): String = try {
         val outputStream = ByteArrayOutputStream()
         BukkitObjectOutputStream(outputStream).use {
             it.writeObject(stack)
@@ -20,7 +20,7 @@ object SerializationUtil {
         throw IllegalStateException("Unable to save item stack.", e)
     }
 
-    fun fromBase64(data: String?): ItemStack = try {
+    fun fromBase64(data: String): ItemStack = try {
         BukkitObjectInputStream(
             ByteArrayInputStream(Base64Coder.decodeLines(data))
         ).use {

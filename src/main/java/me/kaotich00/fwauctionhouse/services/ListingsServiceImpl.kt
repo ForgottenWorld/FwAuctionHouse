@@ -1,14 +1,15 @@
 package me.kaotich00.fwauctionhouse.services
 
+import com.google.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import me.kaotich00.fwauctionhouse.FwAuctionHouse
 import me.kaotich00.fwauctionhouse.message.Message
-import me.kaotich00.fwauctionhouse.objects.PendingSell
-import me.kaotich00.fwauctionhouse.objects.PendingToken
-import me.kaotich00.fwauctionhouse.storage.StorageProvider
+import me.kaotich00.fwauctionhouse.model.PendingSell
+import me.kaotich00.fwauctionhouse.model.PendingToken
+import me.kaotich00.fwauctionhouse.storage.ListingsDao
 import me.kaotich00.fwauctionhouse.utils.BukkitDispatchers
-import me.kaotich00.fwauctionhouse.utils.ListingStatus
+import me.kaotich00.fwauctionhouse.model.ListingStatus
 import me.kaotich00.fwauctionhouse.utils.launch
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
@@ -16,18 +17,22 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Bukkit
 
-object SimpleMarketService {
+class ListingsServiceImpl @Inject constructor(
+    private val listingsDao: ListingsDao
+) : ListingsService {
 
     private val pendingSells = mutableMapOf<Int, PendingSell>()
+
     private val pendingTokens = mutableMapOf<Int, PendingToken>()
 
-    fun scheduleSellingTask() {
+
+    override fun scheduleSellingTask() {
         launch {
             while(true) {
                 delay(1000)
 
                 val pendingSells = withContext(BukkitDispatchers.async) {
-                    StorageProvider.storageInstance.storageMethod.getPendingSells()
+                    listingsDao.getPendingSells()
                 }
 
                 for (pendingSell in pendingSells) {
@@ -36,7 +41,7 @@ object SimpleMarketService {
                     if (player == null) {
                         val offlinePlayer = Bukkit.getOfflinePlayerIfCached(pendingSell.buyerName)
                         if (offlinePlayer == null) {
-                            StorageProvider.storageInstance.storageMethod.updateListingStatus(
+                            listingsDao.updateListingStatus(
                                 pendingSell.listingId,
                                 ListingStatus.NO_USER_FOUND
                             )
@@ -55,18 +60,18 @@ object SimpleMarketService {
 
                     if (FwAuctionHouse.economy.getBalance(player) < pendingSell.totalCost) {
                         Message.NOT_ENOUGH_MONEY.send(player)
-                        StorageProvider.storageInstance.storageMethod.updateListingStatus(
+                        listingsDao.updateListingStatus(
                             pendingSell.listingId,
                             ListingStatus.NOT_ENOUGH_MONEY
                         )
                         continue
                     }
 
-                    addToPendingSells(pendingSell)
+                    this@ListingsServiceImpl.pendingSells[pendingSell.listingId] = pendingSell
 
                     val confirmPurchase = Component.text("[CLICK HERE TO CONFIRM]")
                         .color(NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.runCommand("/market confirm " + pendingSell.listingId))
+                        .clickEvent(ClickEvent.runCommand("/market confirm ${pendingSell.listingId}"))
                         .hoverEvent(
                             Component
                                 .text("Click to accept the purchase")
@@ -77,7 +82,7 @@ object SimpleMarketService {
 
                     val declinePurchase = Component.text("[CLICK HERE TO DECLINE]\n")
                         .color(NamedTextColor.RED)
-                        .clickEvent(ClickEvent.runCommand("/market decline " + pendingSell.listingId))
+                        .clickEvent(ClickEvent.runCommand("/market decline ${pendingSell.listingId}"))
                         .hoverEvent(
                             Component.text("Click to decline the purchase")
                                 .color(NamedTextColor.RED)
@@ -85,16 +90,14 @@ object SimpleMarketService {
                                 .asHoverEvent()
                         )
 
-                    val message = Component.text(
-                        Message.PURCHASE_MESSAGE.asString(
-                            pendingSell.itemStack.i18NDisplayName ?: "N/D",
-                            pendingSell.itemStack.amount
-                        )
+                    val message = Message.PURCHASE_MESSAGE.asComponent(
+                        pendingSell.itemStack.i18NDisplayName ?: "N/D",
+                        pendingSell.itemStack.amount
                     ).append(confirmPurchase)
                         .append(Component.text(" "))
                         .append(declinePurchase)
                         .append(
-                            Component.text("""------------------------------------------""")
+                            Component.text("------------------------------------------")
                                 .color(NamedTextColor.GREEN)
                                 .decorate(TextDecoration.STRIKETHROUGH)
                                 .decorate(TextDecoration.BOLD)
@@ -106,13 +109,13 @@ object SimpleMarketService {
         }
     }
 
-    fun scheduleConfirmTokenTask() {
+    override fun scheduleConfirmTokenTask() {
         launch {
             while(true) {
                 delay(2000)
 
                 val pendingTokens = withContext(BukkitDispatchers.async) {
-                    StorageProvider.storageInstance.storageMethod.getPendingTokens()
+                    listingsDao.getPendingTokens()
                 }
 
                 for (pendingToken in pendingTokens) {
@@ -122,21 +125,22 @@ object SimpleMarketService {
                         continue
                     }
 
-                    addToPendingToken(pendingToken)
+                    this@ListingsServiceImpl.pendingTokens[pendingToken.sessionId] = pendingToken
 
                     val confirmPurchase =
                         Component.text("[CLICK HERE TO CONFIRM YOUR IDENTITY]\n", NamedTextColor.GREEN)
-                            .clickEvent(ClickEvent.runCommand("/market validateToken " + pendingToken.sessionId))
+                            .clickEvent(ClickEvent.runCommand("/market validateToken ${pendingToken.sessionId}"))
                             .hoverEvent(
                                 Component.text("Click to validate your identity", NamedTextColor.GREEN)
                                     .decorate(TextDecoration.ITALIC)
                                     .asHoverEvent()
                             )
 
-                    val message = Component.text(Message.VALIDATED_TOKEN_MESSAGE.asString())
+                    val message = Message.VALIDATED_TOKEN_MESSAGE
+                        .asComponent()
                         .append(confirmPurchase)
                         .append(
-                            Component.text("""------------------------------------------""")
+                            Component.text("------------------------------------------")
                                 .color(NamedTextColor.GREEN)
                                 .decorate(TextDecoration.STRIKETHROUGH)
                                 .decorate(TextDecoration.BOLD)
@@ -148,23 +152,15 @@ object SimpleMarketService {
         }
     }
 
-    fun addToPendingSells(pendingSell: PendingSell) {
-        pendingSells[pendingSell.listingId] = pendingSell
-    }
-
-    fun removeFromPendingSells(pendingSell: PendingSell) {
+    override fun removeFromPendingSells(pendingSell: PendingSell) {
         pendingSells.remove(pendingSell.listingId)
     }
 
-    fun getPendingSell(id: Int) = pendingSells[id]
+    override fun getPendingSell(id: Int) = pendingSells[id]
 
-    fun addToPendingToken(pendingToken: PendingToken) {
-        pendingTokens[pendingToken.sessionId] = pendingToken
-    }
-
-    fun removeFromPendingToken(pendingToken: PendingToken) {
+    override fun removeFromPendingToken(pendingToken: PendingToken) {
         pendingTokens.remove(pendingToken.sessionId)
     }
 
-    fun getPendingToken(id: Int) = pendingTokens[id]
+    override fun getPendingToken(id: Int) = pendingTokens[id]
 }

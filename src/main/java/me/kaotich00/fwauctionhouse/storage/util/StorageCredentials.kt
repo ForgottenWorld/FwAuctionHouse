@@ -1,9 +1,5 @@
 package me.kaotich00.fwauctionhouse.storage.util
 
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.SQLException
-
 class StorageCredentials(
     val host: String,
     val database: String,
@@ -11,17 +7,63 @@ class StorageCredentials(
     val password: String
 ) {
 
-    val maxPoolSize = 10
+    class Builder internal constructor() {
 
-    val minIdleConnections = 10
+        private lateinit var host: String
 
-    val maxLifetime = 1800000
+        private lateinit var database: String
 
-    val connectionTimeout = 5000
+        private lateinit var username: String
+
+        private lateinit var password: String
+
+
+        fun host(host: String): Builder {
+            this.host = host
+            return this
+        }
+
+        fun database(database: String): Builder {
+            this.database = database
+            return this
+        }
+
+        fun username(username: String): Builder {
+            this.username = username
+            return this
+        }
+
+        fun password(password: String): Builder {
+            this.password = password
+            return this
+        }
+
+        fun build() = StorageCredentials(host, database, username, password)
+    }
+
+    companion object {
+
+        fun builder() = Builder()
+    }
+
+    /*
 
     fun toConnection(): Connection = DriverManager.getConnection(
         "jdbc:mysql://$host/$database?useSSL=false",
         username,
         password
     )
+
+    companion object {
+
+        const val MAX_POOL_SIZE = 10
+
+        const val MIN_IDLE_CONNECTIONS = 10
+
+        const val MAX_LIFETIME = 1800000
+
+        const val CONNECTION_TIMEOUT = 5000
+    }
+
+    */
 }

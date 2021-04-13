@@ -1,15 +1,19 @@
 package me.kaotich00.fwauctionhouse.commands.user
 
+import com.google.inject.Inject
 import me.kaotich00.fwauctionhouse.FwAuctionHouse
 import me.kaotich00.fwauctionhouse.commands.api.UserCommand
 import me.kaotich00.fwauctionhouse.message.Message
-import me.kaotich00.fwauctionhouse.services.SimpleMarketService
-import me.kaotich00.fwauctionhouse.storage.StorageProvider
+import me.kaotich00.fwauctionhouse.services.ListingsService
+import me.kaotich00.fwauctionhouse.storage.ListingsDao
+import me.kaotich00.fwauctionhouse.utils.launchAsync
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import java.util.concurrent.CompletableFuture
 
-class ConfirmCommand : UserCommand(
+class ConfirmCommand @Inject constructor(
+    private val listingsService: ListingsService,
+    private val listingsDao: ListingsDao
+) : UserCommand(
     "confirm",
     "",
     1,
@@ -22,18 +26,26 @@ class ConfirmCommand : UserCommand(
             return
         }
 
-        val pendingSell = SimpleMarketService.getPendingSell(listingId)
+        val pendingSell = listingsService.getPendingSell(listingId) ?: return
 
-        if (pendingSell != null) {
-            val boughtItem = pendingSell.itemStack
-            sender.inventory.addItem(boughtItem)
-            FwAuctionHouse.economy.withdrawPlayer(sender, pendingSell.totalCost)
-            Message.BOUGHT_ITEM.send(sender, boughtItem.i18NDisplayName ?: "N/D", boughtItem.amount, pendingSell.totalCost)
-            sender.playSound(sender.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
-            CompletableFuture.runAsync {
-                SimpleMarketService.removeFromPendingSells(pendingSell)
-                StorageProvider.storageInstance.storageMethod.deletePendingSell(pendingSell.listingId)
-            }
+        val boughtItem = pendingSell.itemStack
+
+        sender.inventory.addItem(boughtItem)
+
+        FwAuctionHouse.economy.withdrawPlayer(sender, pendingSell.totalCost)
+
+        Message.BOUGHT_ITEM.send(
+            sender,
+            boughtItem.i18NDisplayName ?: "N/D",
+            boughtItem.amount,
+            pendingSell.totalCost
+        )
+
+        sender.playSound(sender.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
+
+        launchAsync {
+            listingsService.removeFromPendingSells(pendingSell)
+            listingsDao.deletePendingSell(pendingSell.listingId)
         }
     }
 

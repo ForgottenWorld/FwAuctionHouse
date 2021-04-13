@@ -1,27 +1,18 @@
 package me.kaotich00.fwauctionhouse.storage
 
-import me.kaotich00.fwauctionhouse.FwAuctionHouse
-import me.kaotich00.fwauctionhouse.objects.PendingSell
-import me.kaotich00.fwauctionhouse.objects.PendingToken
+import me.kaotich00.fwauctionhouse.model.PendingSell
+import me.kaotich00.fwauctionhouse.model.PendingToken
+import me.kaotich00.fwauctionhouse.model.ListingStatus
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import java.sql.Connection
 
-interface StorageMethod {
-
-    val plugin: FwAuctionHouse
-
-    fun init()
-
-    fun shutdown()
-
-    val connection: Connection
+interface ListingsDao {
 
     fun insertListing(seller: Player, itemStack: ItemStack, unitPrice: Double)
 
     fun getPendingSells(): List<PendingSell>
 
-    fun updateListingStatus(listingId: Int, status: Int)
+    fun updateListingStatus(listingId: Int, status: ListingStatus)
 
     fun deletePendingSell(listingId: Int)
 

@@ -1,13 +1,17 @@
 package me.kaotich00.fwauctionhouse.commands.user
 
+import com.google.inject.Inject
 import me.kaotich00.fwauctionhouse.commands.api.UserCommand
 import me.kaotich00.fwauctionhouse.message.Message
-import me.kaotich00.fwauctionhouse.services.SimpleMarketService
-import me.kaotich00.fwauctionhouse.storage.StorageProvider
-import me.kaotich00.fwauctionhouse.utils.ListingStatus
+import me.kaotich00.fwauctionhouse.services.ListingsService
+import me.kaotich00.fwauctionhouse.storage.ListingsDao
+import me.kaotich00.fwauctionhouse.model.ListingStatus
 import org.bukkit.entity.Player
 
-class DeclineCommand : UserCommand(
+class DeclineCommand @Inject constructor(
+    private val listingsService: ListingsService,
+    private val listingsDao: ListingsDao
+) : UserCommand(
     "decline",
     "",
     1,
@@ -19,13 +23,10 @@ class DeclineCommand : UserCommand(
             return
         }
 
-        val pendingSell = SimpleMarketService.getPendingSell(listingId) ?: return
+        val pendingSell = listingsService.getPendingSell(listingId) ?: return
 
         Message.DECLINED.send(sender)
-        StorageProvider.storageInstance.storageMethod.updateListingStatus(
-            pendingSell.listingId,
-            ListingStatus.ORDER_AVAILABLE
-        )
-        SimpleMarketService.removeFromPendingSells(pendingSell)
+        listingsDao.updateListingStatus(pendingSell.listingId, ListingStatus.ORDER_AVAILABLE)
+        listingsService.removeFromPendingSells(pendingSell)
     }
 }

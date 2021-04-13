@@ -1,77 +1,119 @@
 package me.kaotich00.fwauctionhouse
 
+import com.google.inject.Inject
 import me.kaotich00.fwauctionhouse.commands.MarketCommandManager
 import me.kaotich00.fwauctionhouse.locale.LocalizationManager
-import me.kaotich00.fwauctionhouse.services.SimpleMarketService
-import me.kaotich00.fwauctionhouse.storage.StorageProvider
+import me.kaotich00.fwauctionhouse.message.Message
+import me.kaotich00.fwauctionhouse.services.ListingsService
+import me.kaotich00.fwauctionhouse.storage.ConnectionProvider
+import me.kaotich00.fwauctionhouse.storage.util.StorageCredentials
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor.*
-import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 
 class FwAuctionHouse : JavaPlugin() {
 
+    @Inject
+    private lateinit var listingsService: ListingsService
+
+    @Inject
+    private lateinit var marketCommandManager: MarketCommandManager
+
+    @Inject
+    private lateinit var connectionProvider: ConnectionProvider
+
+    @Inject
+    private lateinit var localizationManager: LocalizationManager
+
     override fun onEnable() {
         val sender = Bukkit.getConsoleSender()
 
-        sender.sendMessage("$DARK_GRAY$STRIKETHROUGH=====================[$GRAY Fw${GREEN}Market $DARK_GRAY]======================")
+        sender.sendMessage(
+            TextComponent.ofChildren(
+                Component.text("=====================[ ", NamedTextColor.DARK_GRAY),
+                Component.text("Fw", NamedTextColor.GRAY),
+                Component.text("Market ", NamedTextColor.GREEN),
+                Component.text("]======================", NamedTextColor.GRAY)
+            ).decorate(TextDecoration.STRIKETHROUGH)
+        )
 
-        sender.sendMessage("$GRAY   >> $RESET Loading configuration...")
+        val prefix = Component.text("   >>  ", NamedTextColor.GRAY)
+
+        sender.sendMessage(prefix.append(Component.text("Loading configuration...")))
         loadConfiguration()
 
-        sender.sendMessage("$GRAY   >> $RESET Initializing database...")
+        sender.sendMessage(prefix.append(Component.text("Injecting dependencies...")))
+        try {
+            DependenciesModule(this)
+                .createInjector()
+                .injectMembers(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+
+        sender.sendMessage(prefix.append(Component.text("Initializing database...")))
         initStorage()
 
-        sender.sendMessage("$GRAY   >> $RESET Loading localization...")
-        LocalizationManager.loadLanguageFile()
+        sender.sendMessage(prefix.append(Component.text("Loading localization...")))
+        Message.localizationManager = localizationManager
+        localizationManager.loadLanguageFile(this)
 
-        sender.sendMessage("$GRAY   >> $RESET Registering commands...")
+        sender.sendMessage(prefix.append(Component.text("Registering commands...")))
         registerCommands()
 
-        sender.sendMessage("$GRAY   >> $RESET Scheduling tasks...")
+        sender.sendMessage(prefix.append(Component.text("Scheduling tasks...")))
         scheduleTasks()
 
         // sender.sendMessage("$GRAY   >> $RESET Registering economy...")
 
-        sender.sendMessage("$DARK_GRAY$STRIKETHROUGH====================================================")
+        sender.sendMessage(
+            Component.text("=".repeat(52), NamedTextColor.DARK_GRAY)
+                .decorate(TextDecoration.STRIKETHROUGH)
+        )
     }
 
     override fun onDisable() {
+        Message.localizationManager = null
         shutdownStorage()
     }
 
     private fun loadConfiguration() {
         config.options().copyDefaults(true)
         saveDefaultConfig()
-        defaultConfig = config
-    }
-
-    fun reloadDefaultConfig() {
-        reloadConfig()
-        defaultConfig = config
     }
 
     private fun initStorage() {
-        StorageProvider.storageInstance.init()
+        val credentials = config.run {
+            StorageCredentials
+                .builder()
+                .host(getString("address")!!)
+                .database(getString("database")!!)
+                .username(getString("username")!!)
+                .password(getString("password")!!)
+                .build()
+        }
+        connectionProvider.init(this, credentials)
     }
 
     private fun shutdownStorage() {
-        StorageProvider.storageInstance.shutdown()
+        connectionProvider.shutdown()
     }
 
     private fun scheduleTasks() {
-        SimpleMarketService.scheduleSellingTask()
-        SimpleMarketService.scheduleConfirmTokenTask()
+        listingsService.scheduleSellingTask()
+        listingsService.scheduleConfirmTokenTask()
     }
 
     private fun registerCommands() {
-        getCommand("market")!!.setExecutor(MarketCommandManager())
+        getCommand("market")!!.setExecutor(marketCommandManager)
     }
 
     companion object {
-
-        lateinit var defaultConfig: FileConfiguration
 
         val instance get() = getPlugin(FwAuctionHouse::class.java)
 

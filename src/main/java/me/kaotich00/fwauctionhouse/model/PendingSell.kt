@@ -1,4 +1,4 @@
-package me.kaotich00.fwauctionhouse.objects
+package me.kaotich00.fwauctionhouse.model
 
 import org.bukkit.inventory.ItemStack
 

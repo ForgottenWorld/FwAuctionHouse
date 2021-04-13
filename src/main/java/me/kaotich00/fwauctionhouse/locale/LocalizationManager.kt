@@ -1,40 +1,39 @@
 package me.kaotich00.fwauctionhouse.locale
 
 import me.kaotich00.fwauctionhouse.FwAuctionHouse
-import org.bukkit.ChatColor
-import org.bukkit.configuration.file.FileConfiguration
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
-import java.util.*
 
-object LocalizationManager {
+class LocalizationManager {
 
-    private val plugin by lazy {
-        JavaPlugin.getPlugin(FwAuctionHouse::class.java)
-    }
-    private const val DEFAULT_LANG_FILE = "language_en_EN.yml"
     private val strings = mutableMapOf<String, String>()
 
-    private fun initDefaultLocalization() {
-        plugin.saveResource(DEFAULT_LANG_FILE, true)
-    }
 
-    fun loadLanguageFile() {
-        initDefaultLocalization()
-        val localizationFile = FwAuctionHouse.defaultConfig.getString("localization.language_file") ?: DEFAULT_LANG_FILE
+    fun loadLanguageFile(plugin: FwAuctionHouse) {
+        plugin.saveResource(DEFAULT_LANG_FILE, true)
+        val localizationFile = plugin.config
+            .getString("localization.language_file")
+            ?: DEFAULT_LANG_FILE
 
         val data = YamlConfiguration.loadConfiguration(File(plugin.dataFolder, localizationFile))
-        for (key in data.getConfigurationSection("strings")!!.getKeys(false)) {
+        for (key in data.getKeys(false)) {
             strings[key] = data.getString("strings.$key")!!
         }
     }
 
-    fun reload() {
+    fun reload(plugin: FwAuctionHouse) {
         strings.clear()
-        loadLanguageFile()
+        loadLanguageFile(plugin)
     }
 
-    fun localize(key: String) = strings[key] ?: "${ChatColor.RED}No translation present for $key"
+    fun localize(key: String, params: Array<out Any>) = strings[key]
+        ?.let { Component.text(it.format(*params)) }
+        ?: Component.text("No translation present for $key", NamedTextColor.RED)
 
+    companion object {
+
+        private const val DEFAULT_LANG_FILE = "language_en_EN.yml"
+    }
 }

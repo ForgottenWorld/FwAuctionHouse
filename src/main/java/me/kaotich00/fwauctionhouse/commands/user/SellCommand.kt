@@ -1,22 +1,26 @@
 package me.kaotich00.fwauctionhouse.commands.user
 
+import com.google.inject.Inject
+import kotlinx.coroutines.withContext
 import me.kaotich00.fwauctionhouse.commands.api.UserCommand
 import me.kaotich00.fwauctionhouse.message.Message
-import me.kaotich00.fwauctionhouse.storage.StorageProvider
+import me.kaotich00.fwauctionhouse.storage.ListingsDao
+import me.kaotich00.fwauctionhouse.utils.BukkitDispatchers
+import me.kaotich00.fwauctionhouse.utils.launch
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import java.util.concurrent.CompletableFuture
 
-class SellCommand : UserCommand(
+class SellCommand @Inject constructor(
+    private val listingsDao: ListingsDao
+) : UserCommand(
     "sell",
     "",
     1,
     "/market sell <price>"
 ) {
     override fun doCommand(sender: Player, args: Array<String>) {
-
         val sellPrice = args[1].toDoubleOrNull() ?: run {
             sender.sendMessage("You must insert a valid amount")
             return
@@ -29,11 +33,11 @@ class SellCommand : UserCommand(
             return
         }
 
-        val storage = StorageProvider.storageInstance
-        CompletableFuture.supplyAsync {
-            storage.storageMethod.insertListing(sender, itemToSell, sellPrice)
-            true
-        }.thenAccept {
+        launch {
+            withContext(BukkitDispatchers.async) {
+                listingsDao.insertListing(sender, itemToSell, sellPrice)
+            }
+
             sender.playSound(sender.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
             Message.SOLD_ITEM.send(sender, itemToSell.i18NDisplayName ?: "N/D", itemToSell.amount, sellPrice)
             playerInventory.setItem(playerInventory.heldItemSlot, ItemStack(Material.AIR))
