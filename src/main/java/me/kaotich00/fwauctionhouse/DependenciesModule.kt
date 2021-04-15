@@ -8,9 +8,9 @@ import me.kaotich00.fwauctionhouse.services.MarketAreaServiceImpl
 import me.kaotich00.fwauctionhouse.services.ListingsService
 import me.kaotich00.fwauctionhouse.services.ListingsServiceImpl
 import me.kaotich00.fwauctionhouse.storage.ListingsDao
-import me.kaotich00.fwauctionhouse.storage.MySqlListingsDao
-import me.kaotich00.fwauctionhouse.storage.ConnectionProvider
-import me.kaotich00.fwauctionhouse.storage.hikari.MySQLConnectionProvider
+import me.kaotich00.fwauctionhouse.storage.ListingsDaoImpl
+import me.kaotich00.fwauctionhouse.storage.DatabaseConnectionManager
+import me.kaotich00.fwauctionhouse.storage.hikari.MySQLDatabaseConnectionManager
 
 class DependenciesModule(private val plugin: FwAuctionHouse) : AbstractModule() {
 
@@ -20,9 +20,9 @@ class DependenciesModule(private val plugin: FwAuctionHouse) : AbstractModule() 
 
         bind(FwAuctionHouse::class.java).toInstance(plugin)
 
-        bind(ConnectionProvider::class.java).toInstance(MySQLConnectionProvider())
+        bind(DatabaseConnectionManager::class.java).toInstance(MySQLDatabaseConnectionManager())
 
-        bind(ListingsDao::class.java).to(MySqlListingsDao::class.java)
+        bind(ListingsDao::class.java).to(ListingsDaoImpl::class.java)
 
         bind(ListingsService::class.java).to(ListingsServiceImpl::class.java)
 

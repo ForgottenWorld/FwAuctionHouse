@@ -22,3 +22,13 @@ VALIDATE_TOKEN_MESSAGE: |+
   §7
   Hi, you need to validate your identity before proceeding on the web store.
   §5Please click on confirm to validate your identity
+ENTER_BUILD_MODE: §aYou're now in build mode. Use /market pos1 and /market pos2 to set opposite corners.
+ALREADY_IN_BUILD_MODE: §cYou're already in build mode!
+NOT_IN_BUILD_MODE: §cYou're not in build mode!
+EXIT_BUILD_MODE: You're no longer in build mode.
+FIRST_POSITION_SET: §aFirst position has been set.
+SECOND_POSITION_SET: §aSecond position has been set.
+MARKET_AREA_CREATED: §aMarket area created succesfully!
+MARKET_AREA_DELETED: §aMarket area removed succesfully!
+NO_SUCH_MARKET_AREA: §cNo such market area found.
+POSSIBLE_OPTIONS_ENTER_EXIT: §cPossible options are enter or exit

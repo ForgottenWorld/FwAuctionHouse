@@ -1,6 +1,7 @@
 package me.kaotich00.fwauctionhouse.message
 
 import me.kaotich00.fwauctionhouse.locale.LocalizationManager
+import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
@@ -18,11 +19,21 @@ enum class Message(
     PURCHASE_MESSAGE(false),
     VALIDATED_TOKEN,
     VALIDATED_TOKEN_MESSAGE,
-    DECLINED;
+    DECLINED,
+    ENTER_BUILD_MODE,
+    ALREADY_IN_BUILD_MODE,
+    NOT_IN_BUILD_MODE,
+    EXIT_BUILD_MODE,
+    FIRST_POSITION_SET,
+    SECOND_POSITION_SET,
+    MARKET_AREA_CREATED,
+    MARKET_AREA_DELETED,
+    NO_SUCH_MARKET_AREA,
+    POSSIBLE_OPTIONS_ENTER_EXIT;
 
 
-    fun send(sender: CommandSender, vararg params: Any) {
-        sender.sendMessage(asComponent(*params))
+    fun send(audience: Audience, vararg params: Any) {
+        audience.sendMessage(asComponent(*params))
     }
 
     fun asComponent(vararg params: Any) = format(params)

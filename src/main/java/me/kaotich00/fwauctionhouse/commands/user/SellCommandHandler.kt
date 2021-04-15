@@ -2,7 +2,7 @@ package me.kaotich00.fwauctionhouse.commands.user
 
 import com.google.inject.Inject
 import kotlinx.coroutines.withContext
-import me.kaotich00.fwauctionhouse.commands.api.UserCommand
+import me.kaotich00.fwauctionhouse.commands.api.PlayerCommandHandler
 import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.storage.ListingsDao
 import me.kaotich00.fwauctionhouse.utils.BukkitDispatchers
@@ -12,15 +12,14 @@ import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-class SellCommand @Inject constructor(
+class SellCommandHandler @Inject constructor(
     private val listingsDao: ListingsDao
-) : UserCommand(
-    "sell",
-    "",
-    1,
-    "/market sell <price>"
+) : PlayerCommandHandler(
+    name = "sell",
+    requiredArgs = 1,
+    usage = "/market sell <price>"
 ) {
-    override fun doCommand(sender: Player, args: Array<String>) {
+    override fun onCommand(sender: Player, args: Array<String>) {
         val sellPrice = args[1].toDoubleOrNull() ?: run {
             sender.sendMessage("You must insert a valid amount")
             return

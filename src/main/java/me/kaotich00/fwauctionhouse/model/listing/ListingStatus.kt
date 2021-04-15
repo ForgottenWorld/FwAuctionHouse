@@ -1,4 +1,4 @@
-package me.kaotich00.fwauctionhouse.model
+package me.kaotich00.fwauctionhouse.model.listing
 
 enum class ListingStatus(val value: Int) {
     ORDER_AVAILABLE(1),

@@ -5,11 +5,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import me.kaotich00.fwauctionhouse.FwAuctionHouse
 import me.kaotich00.fwauctionhouse.message.Message
-import me.kaotich00.fwauctionhouse.model.PendingSell
-import me.kaotich00.fwauctionhouse.model.PendingToken
+import me.kaotich00.fwauctionhouse.model.listing.Listing
 import me.kaotich00.fwauctionhouse.storage.ListingsDao
 import me.kaotich00.fwauctionhouse.utils.BukkitDispatchers
-import me.kaotich00.fwauctionhouse.model.ListingStatus
+import me.kaotich00.fwauctionhouse.model.listing.ListingStatus
+import me.kaotich00.fwauctionhouse.model.session.PlayerSession
 import me.kaotich00.fwauctionhouse.utils.launch
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
@@ -21,9 +21,9 @@ class ListingsServiceImpl @Inject constructor(
     private val listingsDao: ListingsDao
 ) : ListingsService {
 
-    private val pendingSells = mutableMapOf<Int, PendingSell>()
+    private val listings = mutableMapOf<Int, Listing>()
 
-    private val pendingTokens = mutableMapOf<Int, PendingToken>()
+    private val playerSessions = mutableMapOf<Int, PlayerSession>()
 
 
     override fun scheduleSellingTask() {
@@ -31,25 +31,27 @@ class ListingsServiceImpl @Inject constructor(
             while(true) {
                 delay(1000)
 
-                val pendingSells = withContext(BukkitDispatchers.async) {
-                    listingsDao.getPendingSells()
+                val listings = withContext(BukkitDispatchers.async) {
+                    listingsDao.getListings()
                 }
 
-                for (pendingSell in pendingSells) {
-                    val player = Bukkit.getPlayer(pendingSell.buyerName)
+                for (listing in listings) {
+                    val buyerName = listing.buyerName ?: continue
+
+                    val player = Bukkit.getPlayer(buyerName)
 
                     if (player == null) {
-                        val offlinePlayer = Bukkit.getOfflinePlayerIfCached(pendingSell.buyerName)
+                        val offlinePlayer = Bukkit.getOfflinePlayerIfCached(buyerName)
                         if (offlinePlayer == null) {
                             listingsDao.updateListingStatus(
-                                pendingSell.listingId,
+                                listing.id.value,
                                 ListingStatus.NO_USER_FOUND
                             )
                         }
                         continue
                     }
 
-                    if (getPendingSell(pendingSell.listingId) != null) {
+                    if (getListing(listing.id.value) != null) {
                         continue
                     }
 
@@ -58,23 +60,22 @@ class ListingsServiceImpl @Inject constructor(
                         continue
                     }
 
-                    if (FwAuctionHouse.economy.getBalance(player) < pendingSell.totalCost) {
+                    if (FwAuctionHouse.economy.getBalance(player) < listing.total) {
                         Message.NOT_ENOUGH_MONEY.send(player)
                         listingsDao.updateListingStatus(
-                            pendingSell.listingId,
+                            listing.id.value,
                             ListingStatus.NOT_ENOUGH_MONEY
                         )
                         continue
                     }
 
-                    this@ListingsServiceImpl.pendingSells[pendingSell.listingId] = pendingSell
+                    this@ListingsServiceImpl.listings[listing.id.value] = listing
 
                     val confirmPurchase = Component.text("[CLICK HERE TO CONFIRM]")
                         .color(NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.runCommand("/market confirm ${pendingSell.listingId}"))
+                        .clickEvent(ClickEvent.runCommand("/market confirm ${listing.id.value}"))
                         .hoverEvent(
-                            Component
-                                .text("Click to accept the purchase")
+                            Component.text("Click to accept the purchase")
                                 .color(NamedTextColor.GREEN)
                                 .decorate(TextDecoration.ITALIC)
                                 .asHoverEvent()
@@ -82,7 +83,7 @@ class ListingsServiceImpl @Inject constructor(
 
                     val declinePurchase = Component.text("[CLICK HERE TO DECLINE]\n")
                         .color(NamedTextColor.RED)
-                        .clickEvent(ClickEvent.runCommand("/market decline ${pendingSell.listingId}"))
+                        .clickEvent(ClickEvent.runCommand("/market decline ${listing.id.value}"))
                         .hoverEvent(
                             Component.text("Click to decline the purchase")
                                 .color(NamedTextColor.RED)
@@ -90,10 +91,11 @@ class ListingsServiceImpl @Inject constructor(
                                 .asHoverEvent()
                         )
 
-                    val message = Message.PURCHASE_MESSAGE.asComponent(
-                        pendingSell.itemStack.i18NDisplayName ?: "N/D",
-                        pendingSell.itemStack.amount
-                    ).append(confirmPurchase)
+                    val itemStack = listing.itemStack
+
+                    val message = Message.PURCHASE_MESSAGE
+                        .asComponent(itemStack.i18NDisplayName ?: "N/D", itemStack.amount)
+                        .append(confirmPurchase)
                         .append(Component.text(" "))
                         .append(declinePurchase)
                         .append(
@@ -114,23 +116,24 @@ class ListingsServiceImpl @Inject constructor(
             while(true) {
                 delay(2000)
 
-                val pendingTokens = withContext(BukkitDispatchers.async) {
-                    listingsDao.getPendingTokens()
+                val playerSessions = withContext(BukkitDispatchers.async) {
+                    listingsDao.getPlayerSessions()
                 }
 
-                for (pendingToken in pendingTokens) {
-                    val player = Bukkit.getPlayer(pendingToken.username) ?: continue
+                for (playerSession in playerSessions) {
+                    val player = Bukkit.getPlayer(playerSession.username) ?: continue
 
-                    if (getPendingToken(pendingToken.sessionId) != null) {
+                    if (getPlayerSession(playerSession.id.value) != null) {
                         continue
                     }
 
-                    this@ListingsServiceImpl.pendingTokens[pendingToken.sessionId] = pendingToken
+                    this@ListingsServiceImpl.playerSessions[playerSession.id.value] = playerSession
 
                     val confirmPurchase =
                         Component.text("[CLICK HERE TO CONFIRM YOUR IDENTITY]\n", NamedTextColor.GREEN)
-                            .clickEvent(ClickEvent.runCommand("/market validateToken ${pendingToken.sessionId}"))
-                            .hoverEvent(
+                            .clickEvent(
+                                ClickEvent.runCommand("/market validateToken ${playerSession.id.value}")
+                            ).hoverEvent(
                                 Component.text("Click to validate your identity", NamedTextColor.GREEN)
                                     .decorate(TextDecoration.ITALIC)
                                     .asHoverEvent()
@@ -152,15 +155,15 @@ class ListingsServiceImpl @Inject constructor(
         }
     }
 
-    override fun removeFromPendingSells(pendingSell: PendingSell) {
-        pendingSells.remove(pendingSell.listingId)
+    override fun removeFromListings(listing: Listing) {
+        listings.remove(listing.id.value)
     }
 
-    override fun getPendingSell(id: Int) = pendingSells[id]
+    override fun getListing(id: Int) = listings[id]
 
-    override fun removeFromPendingToken(pendingToken: PendingToken) {
-        pendingTokens.remove(pendingToken.sessionId)
+    override fun removeFromPlayerSession(playerSession: PlayerSession) {
+        playerSessions.remove(playerSession.id.value)
     }
 
-    override fun getPendingToken(id: Int) = pendingTokens[id]
+    override fun getPlayerSession(id: Int) = playerSessions[id]
 }

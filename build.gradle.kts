@@ -17,11 +17,19 @@ repositories {
 dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.slf4j:slf4j-simple:1.6.4")
+
     compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("com.github.BrunoSilvaFreire:Skedule:0.1.3")
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0")
     compileOnly("com.github.TownyAdvanced:Towny:0.96.7.12")
+
+    val exposedVersion = "0.30.1"
+
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 
     val guiceVersion = "5.0.1"
 
@@ -33,6 +41,7 @@ tasks.withType<ShadowJar> {
     relocate("org.slf4j", "me.kaotich00.fwauctionhouse.slf4j")
     relocate("javax.inject", "me.kaotich00.fwauctionhouse.javax.inject")
     relocate("com.google.inject", "me.kaotich00.fwauctionhouse.google.inject")
+    relocate("org.jetbrains.exposed", "me.kaotich00.fwauctionhouse.jetbrains.exposed")
 }
 
 group = "me.kaotich00"

@@ -1,7 +1,7 @@
 package me.kaotich00.fwauctionhouse.services
 
-import me.kaotich00.fwauctionhouse.model.PendingSell
-import me.kaotich00.fwauctionhouse.model.PendingToken
+import me.kaotich00.fwauctionhouse.model.listing.Listing
+import me.kaotich00.fwauctionhouse.model.session.PlayerSession
 
 interface ListingsService {
 
@@ -9,11 +9,11 @@ interface ListingsService {
 
     fun scheduleConfirmTokenTask()
 
-    fun removeFromPendingSells(pendingSell: PendingSell)
+    fun removeFromListings(listing: Listing)
 
-    fun getPendingSell(id: Int): PendingSell?
+    fun getListing(id: Int): Listing?
 
-    fun removeFromPendingToken(pendingToken: PendingToken)
+    fun removeFromPlayerSession(playerSession: PlayerSession)
 
-    fun getPendingToken(id: Int): PendingToken?
+    fun getPlayerSession(id: Int): PlayerSession?
 }

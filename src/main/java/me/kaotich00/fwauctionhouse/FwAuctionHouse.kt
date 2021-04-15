@@ -5,7 +5,7 @@ import me.kaotich00.fwauctionhouse.commands.MarketCommandManager
 import me.kaotich00.fwauctionhouse.locale.LocalizationManager
 import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.services.ListingsService
-import me.kaotich00.fwauctionhouse.storage.ConnectionProvider
+import me.kaotich00.fwauctionhouse.storage.DatabaseConnectionManager
 import me.kaotich00.fwauctionhouse.storage.util.StorageCredentials
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
@@ -24,7 +24,7 @@ class FwAuctionHouse : JavaPlugin() {
     private lateinit var marketCommandManager: MarketCommandManager
 
     @Inject
-    private lateinit var connectionProvider: ConnectionProvider
+    private lateinit var databaseConnectionManager: DatabaseConnectionManager
 
     @Inject
     private lateinit var localizationManager: LocalizationManager
@@ -87,6 +87,10 @@ class FwAuctionHouse : JavaPlugin() {
         saveDefaultConfig()
     }
 
+    fun reloadConfiguration() {
+        localizationManager.reload(this)
+    }
+
     private fun initStorage() {
         val credentials = config.run {
             StorageCredentials
@@ -97,11 +101,11 @@ class FwAuctionHouse : JavaPlugin() {
                 .password(getString("password")!!)
                 .build()
         }
-        connectionProvider.init(this, credentials)
+        databaseConnectionManager.init(this, credentials)
     }
 
     private fun shutdownStorage() {
-        connectionProvider.shutdown()
+        databaseConnectionManager.shutdown()
     }
 
     private fun scheduleTasks() {
