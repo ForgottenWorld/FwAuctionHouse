@@ -6,7 +6,7 @@ import me.kaotich00.fwauctionhouse.locale.LocalizationManager
 import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.services.ListingsService
 import me.kaotich00.fwauctionhouse.storage.DatabaseConnectionManager
-import me.kaotich00.fwauctionhouse.storage.util.StorageCredentials
+import me.kaotich00.fwauctionhouse.storage.util.DatabaseCredentials
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
@@ -28,6 +28,9 @@ class FwAuctionHouse : JavaPlugin() {
 
     @Inject
     private lateinit var localizationManager: LocalizationManager
+
+    @Inject
+    private lateinit var bukkitEventListener: BukkitEventListener
 
     override fun onEnable() {
         val sender = Bukkit.getConsoleSender()
@@ -66,13 +69,17 @@ class FwAuctionHouse : JavaPlugin() {
         sender.sendMessage(prefix.append(Component.text("Registering commands...")))
         registerCommands()
 
+        sender.sendMessage(prefix.append(Component.text("Registering event listeners...")))
+        Bukkit.getPluginManager().registerEvents(bukkitEventListener, this)
+
         sender.sendMessage(prefix.append(Component.text("Scheduling tasks...")))
         scheduleTasks()
 
         // sender.sendMessage("$GRAY   >> $RESET Registering economy...")
 
         sender.sendMessage(
-            Component.text("=".repeat(52), NamedTextColor.DARK_GRAY)
+            Component
+                .text("=".repeat(52), NamedTextColor.DARK_GRAY)
                 .decorate(TextDecoration.STRIKETHROUGH)
         )
     }
@@ -93,13 +100,12 @@ class FwAuctionHouse : JavaPlugin() {
 
     private fun initStorage() {
         val credentials = config.run {
-            StorageCredentials
-                .builder()
-                .host(getString("address")!!)
-                .database(getString("database")!!)
-                .username(getString("username")!!)
-                .password(getString("password")!!)
-                .build()
+            DatabaseCredentials(
+                host = getString("address")!!,
+                database = getString("database")!!,
+                username = getString("username")!!,
+                password = getString("password")!!
+            )
         }
         databaseConnectionManager.init(this, credentials)
     }

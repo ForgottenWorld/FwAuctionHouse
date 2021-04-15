@@ -123,9 +123,7 @@ class ListingsServiceImpl @Inject constructor(
                 for (playerSession in playerSessions) {
                     val player = Bukkit.getPlayer(playerSession.username) ?: continue
 
-                    if (getPlayerSession(playerSession.id.value) != null) {
-                        continue
-                    }
+                    if (getPlayerSession(playerSession.id.value) != null) continue
 
                     this@ListingsServiceImpl.playerSessions[playerSession.id.value] = playerSession
 
