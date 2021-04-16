@@ -10,7 +10,7 @@ sealed class PosCommandHandler(
     private val positionSetter: (Player) -> Unit
 ) : AdminCommandHandler(
     name = "pos$positionNumber",
-    requiredArgs = 1,
+    requiredArgs = 0,
     usage = "/market pos$positionNumber",
 ) {
 

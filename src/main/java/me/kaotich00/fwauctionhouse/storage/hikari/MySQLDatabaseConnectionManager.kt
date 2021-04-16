@@ -1,5 +1,8 @@
 package me.kaotich00.fwauctionhouse.storage.hikari
 
+import javax.inject.Singleton
+
+@Singleton
 class MySQLDatabaseConnectionManager : HikariDatabaseConnectionManager() {
 
     override val drivers = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"

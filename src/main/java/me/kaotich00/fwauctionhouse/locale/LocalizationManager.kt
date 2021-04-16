@@ -5,7 +5,9 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
+import javax.inject.Singleton
 
+@Singleton
 class LocalizationManager {
 
     private val strings = mutableMapOf<String, String>()
@@ -19,7 +21,7 @@ class LocalizationManager {
 
         val data = YamlConfiguration.loadConfiguration(File(plugin.dataFolder, localizationFile))
         for (key in data.getKeys(false)) {
-            strings[key] = data.getString("strings.$key")!!
+            strings[key] = data.getString(key)!!
         }
     }
 
@@ -31,6 +33,7 @@ class LocalizationManager {
     fun localize(key: String, params: Array<out Any>) = strings[key]
         ?.let { Component.text(it.format(*params)) }
         ?: Component.text("No translation present for $key", NamedTextColor.RED)
+
 
     companion object {
 

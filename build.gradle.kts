@@ -26,10 +26,10 @@ dependencies {
 
     val exposedVersion = "0.30.1"
 
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
+    compileOnly("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    compileOnly("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    compileOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    compileOnly("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 
     val guiceVersion = "5.0.1"
 
@@ -37,11 +37,24 @@ dependencies {
 }
 
 tasks.withType<ShadowJar> {
-    relocate("com.zaxxer.hikari", "me.kaotich00.fwauctionhouse.zaxxer.hikari")
+    dependencies {
+        val included = listOf(
+            "me.kaotich00.fwauctionhouse",
+            "com.google.inject",
+            "javax.inject",
+            "org.slf4j",
+            "aopalliance",
+            "com.zaxxer"
+        )
+        exclude { dep ->
+            included.none { dep.moduleGroup.startsWith(it) }
+        }
+    }
+    relocate("org.aopalliance", "me.kaotich00.fwauctionhouse.aopalliance")
+    relocate("com.zaxxer", "me.kaotich00.fwauctionhouse.zaxxer")
     relocate("org.slf4j", "me.kaotich00.fwauctionhouse.slf4j")
     relocate("javax.inject", "me.kaotich00.fwauctionhouse.javax.inject")
     relocate("com.google.inject", "me.kaotich00.fwauctionhouse.google.inject")
-    relocate("org.jetbrains.exposed", "me.kaotich00.fwauctionhouse.jetbrains.exposed")
 }
 
 group = "me.kaotich00"
@@ -59,5 +72,15 @@ tasks.withType<JavaCompile> {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+}
+
+tasks.register("localDeploy") {
+    doLast {
+        copy {
+            from("build/libs")
+            into("/home/giacomo/paper/plugins")
+            include("**/*-all.jar")
+        }
     }
 }

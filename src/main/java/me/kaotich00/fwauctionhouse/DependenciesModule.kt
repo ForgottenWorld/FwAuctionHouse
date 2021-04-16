@@ -17,7 +17,6 @@ class DependenciesModule(private val plugin: FwAuctionHouse) : AbstractModule() 
     fun createInjector(): Injector = Guice.createInjector(this)
 
     override fun configure() {
-
         bind(FwAuctionHouse::class.java).toInstance(plugin)
 
         bind(DatabaseConnectionManager::class.java).toInstance(MySQLDatabaseConnectionManager())

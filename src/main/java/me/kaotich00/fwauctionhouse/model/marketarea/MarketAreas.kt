@@ -8,11 +8,11 @@ object MarketAreas : IntIdTable("market_areas") {
 
     val minX = integer("min_x")
 
-    val maxX = integer("min_x")
+    val maxX = integer("max_x")
 
-    val minZ = integer("min_x")
+    val minZ = integer("min_z")
 
-    val maxZ = integer("min_x")
+    val maxZ = integer("max_z")
 
     val chunkKeyList = varchar("chunk_keys", 255)
 }

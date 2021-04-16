@@ -1,6 +1,7 @@
 package me.kaotich00.fwauctionhouse.services
 
 import com.google.inject.Inject
+import com.google.inject.Singleton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import me.kaotich00.fwauctionhouse.FwAuctionHouse
@@ -17,6 +18,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Bukkit
 
+@Singleton
 class ListingsServiceImpl @Inject constructor(
     private val listingsDao: ListingsDao
 ) : ListingsService {

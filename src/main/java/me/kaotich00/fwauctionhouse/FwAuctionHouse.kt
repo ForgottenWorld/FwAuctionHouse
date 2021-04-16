@@ -5,6 +5,7 @@ import me.kaotich00.fwauctionhouse.commands.MarketCommandManager
 import me.kaotich00.fwauctionhouse.locale.LocalizationManager
 import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.services.ListingsService
+import me.kaotich00.fwauctionhouse.services.MarketAreaService
 import me.kaotich00.fwauctionhouse.storage.DatabaseConnectionManager
 import me.kaotich00.fwauctionhouse.storage.util.DatabaseCredentials
 import net.kyori.adventure.text.Component
@@ -31,6 +32,10 @@ class FwAuctionHouse : JavaPlugin() {
 
     @Inject
     private lateinit var bukkitEventListener: BukkitEventListener
+
+    @Inject
+    private lateinit var marketAreaService: MarketAreaService
+
 
     override fun onEnable() {
         val sender = Bukkit.getConsoleSender()
@@ -82,6 +87,8 @@ class FwAuctionHouse : JavaPlugin() {
                 .text("=".repeat(52), NamedTextColor.DARK_GRAY)
                 .decorate(TextDecoration.STRIKETHROUGH)
         )
+
+        marketAreaService.initialize()
     }
 
     override fun onDisable() {
@@ -99,7 +106,7 @@ class FwAuctionHouse : JavaPlugin() {
     }
 
     private fun initStorage() {
-        val credentials = config.run {
+        val credentials = with(config) {
             DatabaseCredentials(
                 host = getString("address")!!,
                 database = getString("database")!!,
@@ -122,6 +129,7 @@ class FwAuctionHouse : JavaPlugin() {
     private fun registerCommands() {
         getCommand("market")!!.setExecutor(marketCommandManager)
     }
+
 
     companion object {
 

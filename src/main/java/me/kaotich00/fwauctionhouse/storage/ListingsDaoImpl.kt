@@ -33,7 +33,9 @@ class ListingsDaoImpl : ListingsDao {
         }
     }
 
-    override fun getListings() = Listing.find { Listings.status eq 2 }.toList()
+    override fun getListings() = transaction {
+        Listing.find { Listings.status eq 2 }.toList()
+    }
 
     override fun updateListingStatus(listingId: Int, status: ListingStatus) {
         transaction {
@@ -47,9 +49,11 @@ class ListingsDaoImpl : ListingsDao {
         }
     }
 
-    override fun getPlayerSessions() = PlayerSession
-        .find { PlayerSessions.isValidated neq true }
-        .toList()
+    override fun getPlayerSessions() = transaction {
+        PlayerSession
+            .find { PlayerSessions.isValidated neq true }
+            .toList()
+    }
 
     override fun validateToken(sessionId: Int) {
         transaction {
