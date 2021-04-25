@@ -1,0 +1,29 @@
+name: FwAuctionHouse
+version: 0.0.1
+main: me.kaotich00.fwauctionhouse.FwAuctionHouse
+api-version: 1.16
+authors: [Kaotich00]
+description: An Auction House plugin for forgottenworld server
+website: https://forgottenworld.it
+depend:
+  - FWKotlinDeps
+  - Vault
+loadafter: [Vault]
+commands:
+  market:
+    description: Main FwAuctionHouse command
+    usage: /<command>
+    aliases: [market, ah]
+permissions:
+  market.admin:
+    description: Allows the player to use administrative commands
+    default: op
+  market.global:
+    description: Allows the player to use the market from everywhere
+    default: op
+  market.international:
+    description: Allows the player to use the market from market areas not belonging to any town
+    default: op
+  market.town:
+    description: Allows the player to use the market in designated areas belonging to their town
+    default: true

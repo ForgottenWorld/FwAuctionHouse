@@ -12,3 +12,9 @@ buildNumber.properties
 /.idea/
 /.gradle/
 /build/
+/buildSrc/build/
+/buildSrc/.gradle/
+/api_key
+/auctionhouse-ktor/build/
+/auctionhouse-db/build/
+/auctionhouse-paper/build/
