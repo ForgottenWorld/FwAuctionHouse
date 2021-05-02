@@ -3,13 +3,14 @@ package me.kaotich00.fwauctionhouse.ktor
 import me.kaotich00.fwauctionhouse.db.listing.Listing
 
 fun Listing.toMap() = mapOf(
-    "seller_uuid" to sellerUuid,
-    "seller_nickname" to sellerNickname,
-    "amount" to amount,
-    "unit_price" to unitPrice,
-    "status" to status,
-    "buyer_name" to buyerName,
-    "additional_data" to additionalData,
-    "minecraft_enum" to minecraftEnum,
-    "item_name" to itemName
+    "id" to id.value.toString(),
+    "sellerUuid" to sellerUuid,
+    "sellerNickname" to sellerNickname,
+    "amount" to amount.toString(),
+    "unitPrice" to unitPrice.toString(),
+    "status" to status.toString(),
+    "buyerName" to (buyerName ?: ""),
+    "additionalData" to (additionalData ?: ""),
+    "minecraftEnum" to minecraftEnum,
+    "itemName" to itemName
 )

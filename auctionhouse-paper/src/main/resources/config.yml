@@ -33,5 +33,5 @@ username: 'username'
 password: 'password'
 
 webApiKey: '12345678901234567890123456789012'
-webApiHost: 'localhost'
+webApiHost: 'http://localhost'
 webApiPort: '8080'

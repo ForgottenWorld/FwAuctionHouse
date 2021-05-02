@@ -18,3 +18,4 @@ buildNumber.properties
 /auctionhouse-ktor/build/
 /auctionhouse-db/build/
 /auctionhouse-paper/build/
+/config.json

@@ -21,10 +21,6 @@ object WebSocketConnectionManager {
         }
     }
 
-    fun unregisterConnection(token: String) {
-        sessionsByToken.remove(token)
-    }
-
 
     suspend fun onListingsChanged() {
         sessionsByToken.values.forEach {
@@ -32,7 +28,7 @@ object WebSocketConnectionManager {
                 it.session.send(LISTINGS_CHANGED)
             } catch (e: Exception) {
                 println("$it has disconnected, removing it!")
-                unregisterConnection(it.token)
+                sessionsByToken.remove(it.token)
             }
         }
     }
@@ -43,7 +39,7 @@ object WebSocketConnectionManager {
             conn.session.send(TOKEN_CONFIRMED)
         } catch (e: Exception) {
             println("$conn has disconnected, removing it!")
-            unregisterConnection(token)
+            sessionsByToken.remove(token)
         }
     }
 

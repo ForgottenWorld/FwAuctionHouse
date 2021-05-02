@@ -7,7 +7,7 @@ object PlayerSessions : IntIdTable("player_session") {
 
     val username = varchar("username", 36)
 
-    val token = varchar("token", 255)
+    val token = varchar("token", 255).index()
 
     val expiration = datetime("expiration").nullable()
 

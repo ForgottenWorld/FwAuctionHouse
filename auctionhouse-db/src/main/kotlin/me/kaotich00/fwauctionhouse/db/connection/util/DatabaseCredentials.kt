@@ -1,4 +1,4 @@
-package me.kaotich00.fwauctionhouse.storage.util
+package me.kaotich00.fwauctionhouse.db.connection.util
 
 class DatabaseCredentials(
     val host: String,

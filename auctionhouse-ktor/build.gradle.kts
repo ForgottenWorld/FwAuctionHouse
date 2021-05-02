@@ -27,5 +27,6 @@ dependencies {
     implementation(Libs.Exposed.jdbc)
     implementation(Libs.Exposed.javaTime)
 
-    testImplementation(Libs.Ktor.tests)
+    implementation(Libs.hikariCP)
+    implementation(Libs.mySqlConnector)
 }

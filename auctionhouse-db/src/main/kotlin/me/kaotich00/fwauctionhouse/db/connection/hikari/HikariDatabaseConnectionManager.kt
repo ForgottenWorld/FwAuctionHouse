@@ -1,13 +1,12 @@
-package me.kaotich00.fwauctionhouse.storage.hikari
+package me.kaotich00.fwauctionhouse.db.connection.hikari
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import me.kaotich00.fwauctionhouse.FwAuctionHouse
+import me.kaotich00.fwauctionhouse.db.connection.DatabaseConnectionManager
+import me.kaotich00.fwauctionhouse.db.connection.util.DatabaseCredentials
 import me.kaotich00.fwauctionhouse.db.listing.Listings
 import me.kaotich00.fwauctionhouse.db.marketarea.MarketAreas
 import me.kaotich00.fwauctionhouse.db.session.PlayerSessions
-import me.kaotich00.fwauctionhouse.storage.DatabaseConnectionManager
-import me.kaotich00.fwauctionhouse.storage.util.DatabaseCredentials
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -46,7 +45,7 @@ abstract class HikariDatabaseConnectionManager : DatabaseConnectionManager {
         }
     }
 
-    override fun init(plugin: FwAuctionHouse, databaseCredentials: DatabaseCredentials) {
+    override fun init(databaseCredentials: DatabaseCredentials) {
         val dataSource = HikariDataSource(createConfiguration(databaseCredentials))
         hikariDataSource = dataSource
         Database.connect(dataSource)

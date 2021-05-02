@@ -1,11 +1,9 @@
-package me.kaotich00.fwauctionhouse.storage.hikari
+package me.kaotich00.fwauctionhouse.db.connection.hikari
 
-import javax.inject.Singleton
 
-@Singleton
 class MySQLDatabaseConnectionManager : HikariDatabaseConnectionManager() {
 
-    override val drivers = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+    override val drivers = "com.mysql.cj.jdbc.MysqlDataSource"
 
     override fun getConnectionProperties() = mapOf(
         "cachePrepStmts" to "true",

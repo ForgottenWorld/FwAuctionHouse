@@ -3,16 +3,20 @@ package me.kaotich00.fwauctionhouse.services
 import com.palmergames.bukkit.towny.TownyAPI
 import com.palmergames.bukkit.towny.`object`.WorldCoord
 import me.kaotich00.fwauctionhouse.db.marketarea.MarketArea
+import me.kaotich00.fwauctionhouse.integration.TownyIntegrationManager
 import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.model.MarketAreaBuilder
 import me.kaotich00.fwauctionhouse.model.containsLocation
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MarketAreaServiceImpl : MarketAreaService {
+class MarketAreaServiceImpl @Inject constructor(
+    private val townyIntegrationManager: TownyIntegrationManager
+) : MarketAreaService {
 
     private val marketAreasById = mutableMapOf<Int, MarketArea>()
 
@@ -53,6 +57,8 @@ class MarketAreaServiceImpl : MarketAreaService {
         if (player.hasPermission("market.international") &&
             getMarketAreaPlayerIsIn(player) != null
         ) return true
+
+        if (!townyIntegrationManager.useTowny) return false
 
         if (!player.hasPermission("market.town")) return false
 

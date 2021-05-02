@@ -2,6 +2,7 @@ object Libs {
 
     const val hikariCP = "com.zaxxer:HikariCP:4.0.3"
     const val slf4j = "org.slf4j:slf4j-simple:1.6.4"
+    const val mySqlConnector = "mysql:mysql-connector-java:8.0.24"
 
     const val paperApi = "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
     const val vaultApi = "com.github.MilkBowl:VaultAPI:1.7"
@@ -12,7 +13,7 @@ object Libs {
     const val koHttp = "io.github.rybalkinsd:kohttp:0.12.0"
 
     object Exposed {
-        private const val version = "0.30.2"
+        private const val version = "0.31.1"
 
         const val core = "org.jetbrains.exposed:exposed-core:$version"
         const val dao = "org.jetbrains.exposed:exposed-dao:$version"

@@ -5,10 +5,7 @@ import me.kaotich00.fwauctionhouse.commands.admin.BuildCommandHandler
 import me.kaotich00.fwauctionhouse.commands.admin.PosCommandHandler
 import me.kaotich00.fwauctionhouse.commands.admin.ReloadCommandHandler
 import me.kaotich00.fwauctionhouse.commands.api.AdminCommandHandler
-import me.kaotich00.fwauctionhouse.commands.user.ConfirmCommandHandler
-import me.kaotich00.fwauctionhouse.commands.user.DeclineCommandHandler
-import me.kaotich00.fwauctionhouse.commands.user.SellCommandHandler
-import me.kaotich00.fwauctionhouse.commands.user.ValidateTokenCommandHandler
+import me.kaotich00.fwauctionhouse.commands.user.*
 import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.message.TextComponents
 import net.kyori.adventure.text.Component
@@ -25,7 +22,8 @@ class MarketCommandManager @Inject constructor(
     reloadCommand: ReloadCommandHandler,
     buildCommand: BuildCommandHandler,
     pos1Command: PosCommandHandler.One,
-    pos2Command: PosCommandHandler.Two
+    pos2Command: PosCommandHandler.Two,
+    logoutCommand: LogoutCommandHandler
 ) : TabExecutor {
 
     private val commandRegistry = arrayOf(
@@ -37,6 +35,7 @@ class MarketCommandManager @Inject constructor(
         buildCommand,
         pos1Command,
         pos2Command,
+        logoutCommand
     ).associateBy { it.name }
 
     private val adminHelpComponent by lazy {

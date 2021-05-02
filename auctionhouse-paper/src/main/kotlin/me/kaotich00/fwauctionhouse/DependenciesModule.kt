@@ -6,8 +6,8 @@ import com.google.inject.Injector
 import me.kaotich00.fwauctionhouse.services.*
 import me.kaotich00.fwauctionhouse.storage.ListingsDao
 import me.kaotich00.fwauctionhouse.storage.ListingsDaoImpl
-import me.kaotich00.fwauctionhouse.storage.DatabaseConnectionManager
-import me.kaotich00.fwauctionhouse.storage.hikari.MySQLDatabaseConnectionManager
+import me.kaotich00.fwauctionhouse.db.connection.DatabaseConnectionManager
+import me.kaotich00.fwauctionhouse.db.connection.hikari.MySQLDatabaseConnectionManager
 
 class DependenciesModule(private val plugin: FwAuctionHouse) : AbstractModule() {
 

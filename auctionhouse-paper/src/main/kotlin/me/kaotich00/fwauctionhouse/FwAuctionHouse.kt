@@ -7,8 +7,9 @@ import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.services.ListingsService
 import me.kaotich00.fwauctionhouse.services.MarketAreaService
 import me.kaotich00.fwauctionhouse.services.WebApiService
-import me.kaotich00.fwauctionhouse.storage.DatabaseConnectionManager
-import me.kaotich00.fwauctionhouse.storage.util.DatabaseCredentials
+import me.kaotich00.fwauctionhouse.db.connection.DatabaseConnectionManager
+import me.kaotich00.fwauctionhouse.db.connection.util.DatabaseCredentials
+import me.kaotich00.fwauctionhouse.integration.TownyIntegrationManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
@@ -40,6 +41,8 @@ class FwAuctionHouse : JavaPlugin() {
     @Inject
     private lateinit var webApiService: WebApiService
 
+    @Inject
+    private lateinit var townyIntegrationManager: TownyIntegrationManager
 
     override fun onEnable() {
         val sender = Bukkit.getConsoleSender()
@@ -84,10 +87,11 @@ class FwAuctionHouse : JavaPlugin() {
         sender.sendMessage(prefix.append(Component.text("Registering event listeners...")))
         Bukkit.getPluginManager().registerEvents(bukkitEventListener, this)
 
+        sender.sendMessage(prefix.append(Component.text("Checking for Towny integration...")))
+        townyIntegrationManager.checkIntegration()
+
         sender.sendMessage(prefix.append(Component.text("Scheduling tasks...")))
         scheduleTasks()
-
-        // sender.sendMessage("$GRAY   >> $RESET Registering economy...")
 
         sender.sendMessage(
             Component
@@ -129,7 +133,7 @@ class FwAuctionHouse : JavaPlugin() {
                 password = getString("password")!!
             )
         }
-        databaseConnectionManager.init(this, credentials)
+        databaseConnectionManager.init(credentials)
     }
 
     private fun shutdownStorage() {
