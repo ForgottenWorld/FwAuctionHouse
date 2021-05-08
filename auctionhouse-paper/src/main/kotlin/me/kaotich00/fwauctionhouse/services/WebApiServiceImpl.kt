@@ -31,7 +31,7 @@ class WebApiServiceImpl : WebApiService {
     override fun sendOnListingsChangedEvent() {
         launchAsync {
             httpGet {
-                url("$apiHost/events/onListingsChanged?api_key=$apiKey")
+                url("$apiHost/api/events/onListingsChanged?api_key=$apiKey")
                 port = apiPort
             }
         }
@@ -40,7 +40,7 @@ class WebApiServiceImpl : WebApiService {
     override fun sendOnTokenConfirmedEvent(token: String) {
         launchAsync {
             httpGet {
-                url("$apiHost/events/onTokenConfirmed?api_key=$apiKey&token=$token")
+                url("$apiHost/api/events/onTokenConfirmed?api_key=$apiKey&token=$token")
                 port = apiPort
             }
         }

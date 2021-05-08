@@ -54,6 +54,7 @@ class MarketAreaServiceImpl @Inject constructor(
     override fun getMarketAreaById(id: Int) = marketAreasById[id]
 
     override fun canPlayerUseMarket(player: Player): Boolean {
+        return true
         if (player.hasPermission("market.international") &&
             getMarketAreaPlayerIsIn(player) != null
         ) return true
@@ -73,8 +74,8 @@ class MarketAreaServiceImpl @Inject constructor(
     }
 
     override fun getMarketAreaPlayerIsIn(player: Player): MarketArea? {
-        val bucket = marketAreasByChunkKey[player.chunk.chunkKey] ?: return null
         val location = player.location
+        val bucket = marketAreasByChunkKey[location.chunk.chunkKey] ?: return null
         return bucket.find { it.containsLocation(location) }
     }
 

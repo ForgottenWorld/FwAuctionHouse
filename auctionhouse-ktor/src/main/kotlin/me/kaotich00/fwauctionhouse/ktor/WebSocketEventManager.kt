@@ -5,19 +5,24 @@ import me.kaotich00.fwauctionhouse.db.session.PlayerSession
 import me.kaotich00.fwauctionhouse.db.session.PlayerSessions
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.lang.Exception
+import java.util.concurrent.ConcurrentHashMap
 
-object WebSocketConnectionManager {
+object WebSocketEventManager {
 
-    private val sessionsByToken = mutableMapOf<String, Connection>()
+    private val sessionsByToken = ConcurrentHashMap<String, Connection>()
 
 
     suspend fun registerConnection(token: String, connection: Connection) {
         sessionsByToken[token] = connection
+
         val playerSession = transaction {
             PlayerSession.find { PlayerSessions.token eq token }.firstOrNull()
         } ?: return
+
         if (playerSession.isValidated == true) {
             connection.session.send(TOKEN_CONFIRMED)
+        } else {
+            connection.session.send("PONG")
         }
     }
 

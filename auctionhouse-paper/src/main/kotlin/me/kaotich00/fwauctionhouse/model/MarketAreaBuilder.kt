@@ -5,6 +5,7 @@ import org.bukkit.Chunk
 import org.bukkit.Location
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -37,14 +38,21 @@ class MarketAreaBuilder internal constructor() {
         val pos1 = pos1 ?: return
         val pos2 = pos2 ?: return
 
-        val minX = min(pos1.first, pos2.first)
-        val maxX = max(pos1.first, pos2.first)
-        val minZ = min(pos1.second, pos2.second)
-        val maxZ = max(pos1.second, pos2.second)
+        fun Int.alignToGrid() = when {
+            this == 0 || this % 16 == 0 -> this
+            this < 0 -> this - 16 + -this % 16
+            this > 0 -> this - this % 16
+            else -> throw Exception("Maths is a social construct")
+        }
+
+        val minX = min(pos1.first, pos2.first).alignToGrid()
+        val maxX = max(pos1.first, pos2.first).alignToGrid()
+        val minZ = min(pos1.second, pos2.second).alignToGrid()
+        val maxZ = max(pos1.second, pos2.second).alignToGrid()
 
         val keys = mutableSetOf<Long>()
-        for (x in minX - Math.floorMod(minX, 16)..maxX - Math.floorMod(maxX, 16) step 16) {
-            for (z in minZ - Math.floorMod(minZ, 16)..maxZ - Math.floorMod(maxZ, 16) step 16) {
+        for (x in minX..maxX step 16) {
+            for (z in minZ..maxZ step 16) {
                 keys.add(Chunk.getChunkKey(x, z))
             }
         }
@@ -52,9 +60,9 @@ class MarketAreaBuilder internal constructor() {
     }
 
     fun canBuild() = pos1 != null &&
-            pos2 != null &&
-            worldUUID != null &&
-            chunkKeys != null
+        pos2 != null &&
+        worldUUID != null &&
+        chunkKeys != null
 
     fun build(): MarketArea {
         val pos1 = pos1!!

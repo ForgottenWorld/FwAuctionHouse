@@ -5,7 +5,7 @@ import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
 import io.ktor.websocket.*
 import me.kaotich00.fwauctionhouse.ktor.Connection
-import me.kaotich00.fwauctionhouse.ktor.WebSocketConnectionManager
+import me.kaotich00.fwauctionhouse.ktor.WebSocketEventManager
 import java.time.Duration
 
 
@@ -27,7 +27,10 @@ fun Application.configureSockets() {
                         val token = text.split('%').getOrNull(1)?.trim() ?: continue
                         if (token.length != 32) continue
                         val thisConnection = Connection(token, this)
-                        WebSocketConnectionManager.registerConnection(token, thisConnection)
+                        WebSocketEventManager.registerConnection(token, thisConnection)
+                    }
+                    text == "PING" -> {
+                        send("PONG")
                     }
                 }
             }

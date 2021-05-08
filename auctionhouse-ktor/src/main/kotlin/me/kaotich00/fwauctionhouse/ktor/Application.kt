@@ -1,5 +1,7 @@
 package me.kaotich00.fwauctionhouse.ktor
 
+import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.serialization.decodeFromString
@@ -34,6 +36,10 @@ fun main() {
     ApiGuard.initialize(config)
 
     embeddedServer(Netty, port = config.apiPort, host = config.apiAddress) {
+        install(CORS) {
+            anyHost()
+        }
+
         configureRouting()
         configureSockets()
         configureSerialization()

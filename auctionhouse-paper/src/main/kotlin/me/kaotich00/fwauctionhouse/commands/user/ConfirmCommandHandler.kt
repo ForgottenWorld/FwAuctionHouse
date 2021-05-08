@@ -30,7 +30,7 @@ class ConfirmCommandHandler @Inject constructor(
             return
         }
 
-        val listing = listingsService.getListing(listingId) ?: return
+        val listing = listingsService.getPendingPurchase(listingId) ?: return
 
         val boughtItem = listing.itemStack
 
@@ -48,7 +48,7 @@ class ConfirmCommandHandler @Inject constructor(
         sender.playSound(sender.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
 
         launchAsync {
-            listingsService.removeFromListings(listing)
+            listingsService.removePendingPurchase(listing)
             listingsDao.deleteListing(listing.id.value)
             webApiService.sendOnListingsChangedEvent()
         }

@@ -4,7 +4,7 @@ import me.kaotich00.fwauctionhouse.db.listing.Listing
 import me.kaotich00.fwauctionhouse.db.listing.Listings
 import me.kaotich00.fwauctionhouse.db.session.PlayerSession
 import me.kaotich00.fwauctionhouse.db.session.PlayerSessions
-import me.kaotich00.fwauctionhouse.utils.Base64ItemStackConverter
+import me.kaotich00.fwauctionhouse.utils.Base64ItemStackConverter.toBase64
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -24,7 +24,7 @@ class ListingsDaoImpl : ListingsDao {
                 this.unitPrice = unitPrice.toFloat()
                 status = 1
                 buyerName = null
-                this.itemStackBase64 = Base64ItemStackConverter.toBase64(itemStack)
+                this.itemStackBase64 = itemStack.toBase64()
                 additionalData = itemStack.i18NDisplayName
                 minecraftEnum = itemStack.type.toString()
                 itemName = itemStack.i18NDisplayName!!

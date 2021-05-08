@@ -3,7 +3,7 @@ package me.kaotich00.fwauctionhouse.ktor.events
 import io.ktor.application.*
 import io.ktor.routing.*
 import me.kaotich00.fwauctionhouse.ktor.ApiGuard
-import me.kaotich00.fwauctionhouse.ktor.WebSocketConnectionManager
+import me.kaotich00.fwauctionhouse.ktor.WebSocketEventManager
 
 fun Route.onListingsChangedRoute() {
     get("/onListingsChanged") {
@@ -11,6 +11,6 @@ fun Route.onListingsChangedRoute() {
 
         if (!ApiGuard.validateRequest(apiKey)) return@get
 
-        WebSocketConnectionManager.onListingsChanged()
+        WebSocketEventManager.onListingsChanged()
     }
 }

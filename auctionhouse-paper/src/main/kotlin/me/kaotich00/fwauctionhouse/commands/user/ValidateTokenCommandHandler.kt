@@ -29,7 +29,7 @@ class ValidateTokenCommandHandler @Inject constructor(
 
         Message.VALIDATED_TOKEN.send(sender)
         listingsDao.validateToken(sessionId)
-        listingsService.removeFromPlayerSession(playerSession)
+        listingsService.removePlayerSession(playerSession)
         webApiService.sendOnTokenConfirmedEvent(playerSession.token)
     }
 

@@ -10,10 +10,10 @@ import java.io.IOException
 
 object Base64ItemStackConverter {
 
-    fun toBase64(stack: ItemStack): String = try {
+    fun ItemStack.toBase64(): String = try {
         val outputStream = ByteArrayOutputStream()
         BukkitObjectOutputStream(outputStream).use {
-            it.writeObject(stack)
+            it.writeObject(this)
         }
         Base64Coder.encodeLines(outputStream.toByteArray())
     } catch (e: Exception) {

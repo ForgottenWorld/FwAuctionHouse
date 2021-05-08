@@ -142,7 +142,7 @@ class FwAuctionHouse : JavaPlugin() {
 
     private fun scheduleTasks() {
         listingsService.scheduleSellingTask()
-        listingsService.scheduleConfirmTokenTask()
+        listingsService.scheduleTokenConfirmationTask()
     }
 
     private fun registerCommands() {

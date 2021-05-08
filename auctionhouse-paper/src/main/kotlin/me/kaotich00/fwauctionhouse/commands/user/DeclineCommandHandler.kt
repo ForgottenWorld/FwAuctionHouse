@@ -25,11 +25,11 @@ class DeclineCommandHandler @Inject constructor(
             return
         }
 
-        val listing = listingsService.getListing(listingId) ?: return
+        val listing = listingsService.getPendingPurchase(listingId) ?: return
 
         Message.DECLINED.send(sender)
         listingsDao.updateListingStatus(listing.id.value, Listing.Status.ORDER_AVAILABLE)
-        listingsService.removeFromListings(listing)
+        listingsService.removePendingPurchase(listing)
         webApiService.sendOnListingsChangedEvent()
     }
 }

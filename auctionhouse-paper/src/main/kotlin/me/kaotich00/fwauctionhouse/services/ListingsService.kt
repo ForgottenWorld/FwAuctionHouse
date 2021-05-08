@@ -7,13 +7,13 @@ interface ListingsService {
 
     fun scheduleSellingTask()
 
-    fun scheduleConfirmTokenTask()
+    fun scheduleTokenConfirmationTask()
 
-    fun removeFromListings(listing: Listing)
+    fun removePendingPurchase(listing: Listing)
 
-    fun getListing(id: Int): Listing?
+    fun getPendingPurchase(id: Int): Listing?
 
-    fun removeFromPlayerSession(playerSession: PlayerSession)
+    fun removePlayerSession(playerSession: PlayerSession)
 
     fun getPlayerSession(id: Int): PlayerSession?
 }

@@ -36,8 +36,8 @@ fun Route.sessionUpdateTokenRoute() {
         call.respond(mapOf(
             "username" to playerSession.username,
             "token" to playerSession.token,
-            "expiration" to playerSession.expiration,
-            "isValidated" to playerSession.isValidated
+            "expiration" to (playerSession.expiration?.toString() ?: ""),
+            "isValidated" to (playerSession.isValidated?.toString() ?: "")
         ))
     }
 }

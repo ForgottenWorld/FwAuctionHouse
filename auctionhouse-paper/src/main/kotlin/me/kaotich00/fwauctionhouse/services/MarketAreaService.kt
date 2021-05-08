@@ -17,7 +17,6 @@ interface MarketAreaService {
 
     fun getMarketAreaPlayerIsIn(player: Player): MarketArea?
 
-
     fun enterBuildMode(player: Player)
 
     fun exitBuildMode(player: Player, disconnect: Boolean)

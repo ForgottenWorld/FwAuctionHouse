@@ -3,7 +3,7 @@ package me.kaotich00.fwauctionhouse.ktor.events
 import io.ktor.application.*
 import io.ktor.routing.*
 import me.kaotich00.fwauctionhouse.ktor.ApiGuard
-import me.kaotich00.fwauctionhouse.ktor.WebSocketConnectionManager
+import me.kaotich00.fwauctionhouse.ktor.WebSocketEventManager
 
 fun Route.onTokenConfirmedRoute() {
     get("/onTokenConfirmed") {
@@ -12,6 +12,6 @@ fun Route.onTokenConfirmedRoute() {
 
         if (!ApiGuard.validateRequest(apiKey)) return@get
 
-        WebSocketConnectionManager.onTokenConfirmed(token)
+        WebSocketEventManager.onTokenConfirmed(token)
     }
 }
