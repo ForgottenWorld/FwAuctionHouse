@@ -7,6 +7,8 @@ import me.kaotich00.fwauctionhouse.integration.TownyIntegrationManager
 import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.model.MarketAreaBuilder
 import me.kaotich00.fwauctionhouse.model.containsLocation
+import me.kaotich00.fwauctionhouse.utils.alignToGrid
+import org.bukkit.Chunk
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
@@ -54,7 +56,8 @@ class MarketAreaServiceImpl @Inject constructor(
     override fun getMarketAreaById(id: Int) = marketAreasById[id]
 
     override fun canPlayerUseMarket(player: Player): Boolean {
-        return true
+        if (player.hasPermission("market.global")) return true
+
         if (player.hasPermission("market.international") &&
             getMarketAreaPlayerIsIn(player) != null
         ) return true
@@ -75,7 +78,8 @@ class MarketAreaServiceImpl @Inject constructor(
 
     override fun getMarketAreaPlayerIsIn(player: Player): MarketArea? {
         val location = player.location
-        val bucket = marketAreasByChunkKey[location.chunk.chunkKey] ?: return null
+        val chunkKey = Chunk.getChunkKey(location.blockX.alignToGrid(), location.blockZ.alignToGrid())
+        val bucket = marketAreasByChunkKey[chunkKey] ?: return null
         return bucket.find { it.containsLocation(location) }
     }
 

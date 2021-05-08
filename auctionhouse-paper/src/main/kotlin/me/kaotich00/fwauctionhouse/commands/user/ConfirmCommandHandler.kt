@@ -7,6 +7,7 @@ import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.model.itemStack
 import me.kaotich00.fwauctionhouse.model.total
 import me.kaotich00.fwauctionhouse.services.ListingsService
+import me.kaotich00.fwauctionhouse.services.MarketAreaService
 import me.kaotich00.fwauctionhouse.services.WebApiService
 import me.kaotich00.fwauctionhouse.storage.ListingsDao
 import me.kaotich00.fwauctionhouse.utils.launchAsync
@@ -16,7 +17,8 @@ import org.bukkit.entity.Player
 class ConfirmCommandHandler @Inject constructor(
     private val listingsService: ListingsService,
     private val listingsDao: ListingsDao,
-    private val webApiService: WebApiService
+    private val webApiService: WebApiService,
+    private val marketAreaService: MarketAreaService
 ) : PlayerCommandHandler(
     name = "confirm",
     requiredArgs = 1,
@@ -27,6 +29,11 @@ class ConfirmCommandHandler @Inject constructor(
     override fun onCommand(sender: Player, args: Array<String>) {
         val listingId = args[1].toIntOrNull() ?: run {
             Message.INSERT_VALID_ID.send(sender)
+            return
+        }
+
+        if (!marketAreaService.canPlayerUseMarket(sender)) {
+            Message.YOU_MAY_NOT_ACCESS_MARKET_HERE.send(sender)
             return
         }
 

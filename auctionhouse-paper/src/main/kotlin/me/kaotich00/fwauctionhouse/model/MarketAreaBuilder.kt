@@ -1,11 +1,11 @@
 package me.kaotich00.fwauctionhouse.model
 
 import me.kaotich00.fwauctionhouse.db.marketarea.MarketArea
+import me.kaotich00.fwauctionhouse.utils.alignToGrid
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -37,13 +37,6 @@ class MarketAreaBuilder internal constructor() {
     private fun chunkKeys() {
         val pos1 = pos1 ?: return
         val pos2 = pos2 ?: return
-
-        fun Int.alignToGrid() = when {
-            this == 0 || this % 16 == 0 -> this
-            this < 0 -> this - 16 + -this % 16
-            this > 0 -> this - this % 16
-            else -> throw Exception("Maths is a social construct")
-        }
 
         val minX = min(pos1.first, pos2.first).alignToGrid()
         val maxX = max(pos1.first, pos2.first).alignToGrid()

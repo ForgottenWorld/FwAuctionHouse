@@ -21,11 +21,11 @@ permissions:
     description: Allows the player to use administrative commands
     default: op
   market.global:
-    description: Allows the player to use the market from everywhere
+    description: Allows the player to use the market from anywhere
     default: op
   market.international:
     description: Allows the player to use the market from market areas not belonging to any town
-    default: op
+    default: true
   market.town:
     description: Allows the player to use the market in designated areas belonging to their town
     default: true
