@@ -4,7 +4,7 @@ object Libs {
     const val slf4j = "org.slf4j:slf4j-simple:1.6.4"
     const val mySqlConnector = "mysql:mysql-connector-java:8.0.24"
 
-    const val paperApi = "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
+    const val paperApi = "io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT"
     const val vaultApi = "com.github.MilkBowl:VaultAPI:1.7"
     const val skedule = "com.github.BrunoSilvaFreire:Skedule:0.1.3"
     const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0"

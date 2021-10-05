@@ -3,7 +3,7 @@ package me.kaotich00.fwauctionhouse.message
 import me.kaotich00.fwauctionhouse.locale.LocalizationManager
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.format.NamedTextColor
 
 enum class Message(
@@ -26,11 +26,12 @@ enum class Message(
     FIRST_POSITION_SET,
     SECOND_POSITION_SET,
     MARKET_AREA_CREATED,
-    MARKET_AREA_DELETED,
+    MARKET_AREA_REMOVED,
     NO_SUCH_MARKET_AREA,
     YOU_WERE_LOGGED_OUT,
     NO_OPEN_SESSIONS,
     POSSIBLE_OPTIONS_ENTER_EXIT,
+    POSSIBLE_OPTIONS_ID_THIS,
     INSERT_VALID_AMOUNT,
     YOU_MAY_NOT_ACCESS_MARKET_HERE,
     INSERT_VALID_SESSION_ID,
@@ -60,7 +61,8 @@ enum class Message(
 
     companion object {
 
-        private val PREFIX = TextComponent.ofChildren(
+        private val PREFIX = Component.join(
+            JoinConfiguration.noSeparators(),
             Component.text("[", NamedTextColor.DARK_GRAY),
             Component.text("Fw", NamedTextColor.GRAY),
             Component.text("Market", NamedTextColor.GREEN),

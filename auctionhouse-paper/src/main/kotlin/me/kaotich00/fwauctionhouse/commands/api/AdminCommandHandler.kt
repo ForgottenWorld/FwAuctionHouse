@@ -16,7 +16,7 @@ abstract class AdminCommandHandler(
             return
         }
 
-        sender.sendMessage(Message.YOU_DONT_HAVE_PERMISSION_TO_USE_COMMAND.asComponent())
+        Message.YOU_DONT_HAVE_PERMISSION_TO_USE_COMMAND.send(sender)
     }
 
     protected abstract fun onAdminOnlyCommand(sender: Player, args: Array<String>)

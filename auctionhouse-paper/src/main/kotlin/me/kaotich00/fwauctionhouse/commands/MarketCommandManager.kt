@@ -4,10 +4,12 @@ import com.google.inject.Inject
 import me.kaotich00.fwauctionhouse.commands.admin.BuildCommandHandler
 import me.kaotich00.fwauctionhouse.commands.admin.PosCommandHandler
 import me.kaotich00.fwauctionhouse.commands.admin.ReloadCommandHandler
+import me.kaotich00.fwauctionhouse.commands.admin.RemoveAreaCommandHandler
 import me.kaotich00.fwauctionhouse.commands.api.AdminCommandHandler
 import me.kaotich00.fwauctionhouse.commands.user.*
 import me.kaotich00.fwauctionhouse.message.Message
 import me.kaotich00.fwauctionhouse.message.TextComponents
+import me.kaotich00.fwauctionhouse.message.send
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.command.Command
@@ -23,7 +25,8 @@ class MarketCommandManager @Inject constructor(
     buildCommand: BuildCommandHandler,
     pos1Command: PosCommandHandler.One,
     pos2Command: PosCommandHandler.Two,
-    logoutCommand: LogoutCommandHandler
+    logoutCommand: LogoutCommandHandler,
+    removeAreaCommand: RemoveAreaCommandHandler
 ) : TabExecutor {
 
     private val commandRegistry = arrayOf(
@@ -35,7 +38,8 @@ class MarketCommandManager @Inject constructor(
         buildCommand,
         pos1Command,
         pos2Command,
-        logoutCommand
+        logoutCommand,
+        removeAreaCommand
     ).associateBy { it.name }
 
     private val adminHelpComponent by lazy {
@@ -92,8 +96,8 @@ class MarketCommandManager @Inject constructor(
             return true
         }
 
-        sender.sendMessage(Message.NOT_ENOUGH_ARGUMENTS.asComponent())
-        sender.sendMessage(Component.text(handler.usage))
+        Message.NOT_ENOUGH_ARGUMENTS.send(sender)
+        Component.text(handler.usage).send(sender)
         return true
     }
 

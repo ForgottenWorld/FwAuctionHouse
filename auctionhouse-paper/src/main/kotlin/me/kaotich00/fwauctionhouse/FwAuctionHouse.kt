@@ -10,8 +10,9 @@ import me.kaotich00.fwauctionhouse.services.WebApiService
 import me.kaotich00.fwauctionhouse.db.connection.DatabaseConnectionManager
 import me.kaotich00.fwauctionhouse.db.connection.util.DatabaseCredentials
 import me.kaotich00.fwauctionhouse.integration.TownyIntegrationManager
+import me.kaotich00.fwauctionhouse.message.send
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.milkbowl.vault.economy.Economy
@@ -47,21 +48,20 @@ class FwAuctionHouse : JavaPlugin() {
     override fun onEnable() {
         val sender = Bukkit.getConsoleSender()
 
-        sender.sendMessage(
-            TextComponent.ofChildren(
-                Component.text("=====================[ ", NamedTextColor.DARK_GRAY),
-                Component.text("Fw", NamedTextColor.GRAY),
-                Component.text("Market ", NamedTextColor.GREEN),
-                Component.text("]======================", NamedTextColor.GRAY)
-            ).decorate(TextDecoration.STRIKETHROUGH)
-        )
+        Component.join(
+            JoinConfiguration.noSeparators(),
+            Component.text("=====================[ ", NamedTextColor.DARK_GRAY),
+            Component.text("Fw", NamedTextColor.GRAY),
+            Component.text("Market ", NamedTextColor.GREEN),
+            Component.text("]======================", NamedTextColor.GRAY)
+        ).decorate(TextDecoration.STRIKETHROUGH).send(sender)
 
         val prefix = Component.text("   >>  ", NamedTextColor.GRAY)
 
-        sender.sendMessage(prefix.append(Component.text("Loading configuration...")))
+        prefix.append(Component.text("Loading configuration...")).send(sender)
         loadConfiguration()
 
-        sender.sendMessage(prefix.append(Component.text("Injecting dependencies...")))
+        prefix.append(Component.text("Injecting dependencies...")).send(sender)
         try {
             DependenciesModule(this)
                 .createInjector()
@@ -71,33 +71,32 @@ class FwAuctionHouse : JavaPlugin() {
             throw e
         }
 
-        sender.sendMessage(prefix.append(Component.text("Loading localization...")))
+        prefix.append(Component.text("Loading localization...")).send(sender)
         Message.localizationManager = localizationManager
         localizationManager.loadLanguageFile(this)
 
-        sender.sendMessage(prefix.append(Component.text("Initializing database...")))
+        prefix.append(Component.text("Initializing database...")).send(sender)
         initStorage()
 
-        sender.sendMessage(prefix.append(Component.text("Initializing Web API service...")))
+        prefix.append(Component.text("Initializing Web API service...")).send(sender)
         initWebApiService()
 
-        sender.sendMessage(prefix.append(Component.text("Registering commands...")))
+        prefix.append(Component.text("Registering commands...")).send(sender)
         registerCommands()
 
-        sender.sendMessage(prefix.append(Component.text("Registering event listeners...")))
+        prefix.append(Component.text("Registering event listeners...")).send(sender)
         Bukkit.getPluginManager().registerEvents(bukkitEventListener, this)
 
-        sender.sendMessage(prefix.append(Component.text("Checking for Towny integration...")))
+        prefix.append(Component.text("Checking for Towny integration...")).send(sender)
         townyIntegrationManager.checkIntegration()
 
-        sender.sendMessage(prefix.append(Component.text("Scheduling tasks...")))
+        prefix.append(Component.text("Scheduling tasks...")).send(sender)
         scheduleTasks()
 
-        sender.sendMessage(
-            Component
-                .text("=".repeat(52), NamedTextColor.DARK_GRAY)
-                .decorate(TextDecoration.STRIKETHROUGH)
-        )
+        Component
+            .text("=".repeat(52), NamedTextColor.DARK_GRAY)
+            .decorate(TextDecoration.STRIKETHROUGH)
+            .send(sender)
 
         marketAreaService.initialize()
     }

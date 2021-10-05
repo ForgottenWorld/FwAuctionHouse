@@ -7,7 +7,6 @@ import me.kaotich00.fwauctionhouse.db.listing.Listing
 import me.kaotich00.fwauctionhouse.db.listing.Listings
 import me.kaotich00.fwauctionhouse.ktor.toMap
 import me.kaotich00.fwauctionhouse.ktor.validateCall
-import me.kaotich00.fwauctionhouse.ktor.validateToken
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Route.listingListByEnumRoute() {

@@ -6,7 +6,6 @@ import io.ktor.routing.*
 import me.kaotich00.fwauctionhouse.db.listing.Listing
 import me.kaotich00.fwauctionhouse.db.session.PlayerSession
 import me.kaotich00.fwauctionhouse.db.session.PlayerSessions
-import me.kaotich00.fwauctionhouse.ktor.validateCall
 import me.kaotich00.fwauctionhouse.ktor.validateToken
 import org.jetbrains.exposed.sql.transactions.transaction
 

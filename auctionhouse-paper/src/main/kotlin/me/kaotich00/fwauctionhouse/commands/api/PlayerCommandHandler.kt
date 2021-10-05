@@ -19,6 +19,6 @@ abstract class PlayerCommandHandler(
             return
         }
 
-        sender.sendMessage(Message.ONLY_PLAYERS_CAN_RUN_THIS_COMMAND.asComponent())
+        Message.ONLY_PLAYERS_CAN_RUN_THIS_COMMAND.send(sender)
     }
 }

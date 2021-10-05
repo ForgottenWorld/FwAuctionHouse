@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
     `maven-publish`
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version "6.1.0"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 dependencies {
@@ -50,7 +50,7 @@ tasks.withType<ShadowJar> {
     relocate("com.google.inject", "me.kaotich00.fwauctionhouse.google.inject")
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_16
 
 tasks.register("localDeploy") {
     doLast {

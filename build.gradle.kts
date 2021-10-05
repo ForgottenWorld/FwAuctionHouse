@@ -24,14 +24,14 @@ subprojects {
     }
 
     tasks.withType<JavaCompile> {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
+        sourceCompatibility = "16"
+        targetCompatibility = "16"
         options.encoding = "UTF-8"
     }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "16"
         }
     }
 }

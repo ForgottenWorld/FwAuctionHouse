@@ -1,7 +1,7 @@
 package me.kaotich00.fwauctionhouse.message
 
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.JoinConfiguration
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -42,7 +42,8 @@ object TextComponents {
     fun purchaseConfirmation(
         listingId: Int,
         itemStack: ItemStack
-    ) = TextComponent.ofChildren(
+    ) = Component.join(
+        JoinConfiguration.noSeparators(),
         greenSeparator,
         newLine,
         Message.PURCHASE_MESSAGE.asComponent(
@@ -65,7 +66,8 @@ object TextComponents {
                 .asHoverEvent()
         )
 
-    fun tokenConfirmation(playerSessionId: Int) = TextComponent.ofChildren(
+    fun tokenConfirmation(playerSessionId: Int) = Component.join(
+        JoinConfiguration.noSeparators(),
         greenSeparator,
         newLine,
         Message.VALIDATE_TOKEN_MESSAGE.asComponent(),
